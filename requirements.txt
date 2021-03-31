@@ -1,9 +1,7 @@
 Flask==1.1.2
-get
 gunicorn==20.1.0
-post
 requests
-wikipedia
-line-bot-sdk
+wikipedia==1.4.0
+line-bot-sdk==1.19.0
 pandas==0.20.3
-googletrans
+googletrans==3.0.0
