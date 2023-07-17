@@ -36,20 +36,17 @@ def get_predictmotor():
 
 @app.route('/scraping')
 def scraping():
-    id = request.args.get('id')
-    path = request.args.get('path')
-    path = path.replace("'",'')
     options = Options()
     options.add_argument('--headless')
-    options.add_argument('--window-size=960,720')
+    options.add_argument('--window-size=691,1200')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get('file:///Users/ponnipa/Documents/GitHub/fda-backend/'+path)
+    driver.get('file:///Users/ponnipa/Documents/GitHub/shophtml/2.html')
     sleep(1)
-# (1382, 2400, 3)
-    driver.get_screenshot_as_file(id+".jpg")
+
+    driver.get_screenshot_as_file("2.jpg")
     driver.quit()
     print("end...")
-    path = id+'.jpg'
+    path = '2.jpg'
     img = cv2.imread(path)
     print(img.shape) # Print image shape
     # cv2.imshow("original", img)
@@ -62,7 +59,7 @@ def scraping():
     # cv2.imshow("cropped", cropped_image)
     
     # Save the cropped image
-    cv2.imwrite("Cropped"+id+".jpg", cropped_image)
+    cv2.imwrite("Cropped2.jpg", cropped_image)
     
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -70,11 +67,9 @@ def scraping():
 
 @app.route('/base64')
 def get_base64():
-    id = request.args.get('id')
-    print(id)
-    with open("Cropped"+id+".jpg", "rb") as image_file:
+    with open("Cropped Image2.jpg", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
-    # print(encoded_string)
+    print(encoded_string)
     return encoded_string
 
 if __name__ == "__main__":
