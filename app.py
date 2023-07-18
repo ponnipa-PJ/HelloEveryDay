@@ -1,13 +1,11 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
-<<<<<<< HEAD
-import pickle
-import pandas as pd
-=======
 from pythainlp.corpus.common import thai_words
 from pythainlp import Tokenizer,word_tokenize
 import numpy as np
 import cv2
+import imutils  # https://pypi.org/project/imutils/
+
 import base64
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -15,7 +13,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from time import sleep
 from selenium.webdriver.chrome.options import Options
->>>>>>> bbaeeb2d452dfb8370af3fc4b3be786dc8f5103c
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -25,25 +22,46 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 def hello():
     return "Welcome To WebService"
 
-<<<<<<< HEAD
-@app.route('/predictmotor')
-def get_predictmotor():
-    print(request.args.get)
-    temp_in = request.args.get('temp_out')
-    if temp_in is None:
-        return jsonify(str('temp out not incorrect'))
-    else:
-        loaded_model = pickle.load(open('baggingmodel.sav', 'rb'))
-        data = {"Temp_Out_Y": [temp_in]}
-        # print(data)
-        # #load data into a DataFrame object:
-        df = pd.DataFrame(data)
-        # print(df)
-        X = loaded_model.predict(df)
-        pre = X[0]
-        # print(pre)
-        return jsonify(str(pre))
-=======
+@app.route('/findedge')
+def findedged():
+    # path = id+'.jpg'
+    path = '1.jpg'
+    img = cv2.imread(path)
+    print(img.shape) # Print image shape
+    
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    s = hsv[:, :, 1]
+    # print(s)
+    # Apply threshold on s - use automatic threshold algorithm (use THRESH_OTSU).
+    ret, thresh = cv2.threshold(s, 127, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+    # Find contours
+    cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    cnts = imutils.grab_contours(cnts) 
+    # print(cnts)
+    # Find the contour with the maximum area.
+    c = max(cnts, key=cv2.contourArea)
+
+    # Get bounding rectangle
+    x, y, w, h = cv2.boundingRect(c)
+    # print(c)
+    # Crop the bounding rectangle out of img
+    out = img[y:y+h, x:x+w, :].copy()
+    # Show result (for testing).
+    # print(x, y, w, h)
+
+
+    # x, y, w, h = 30, 381, 900, 899
+    # out = img[y:y+h, x:x+w, :].copy()
+    # cv2.imshow('out', out)
+        
+    # Save the cropped image
+    cv2.imwrite("out1.jpg", out)
+
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+    return str(x)+" " +str(y)+" " +str(w)+" " +str(h)
+
 @app.route('/worktoken')
 def get_predictmotor():
     # print(request.args.get)
@@ -77,16 +95,15 @@ def scraping():
     img = cv2.imread(path)
     print(img.shape) # Print image shape
     # cv2.imshow("original", img)
-    # Cropping an image
-    # top bottom left right
-    # cropped_image = img[180:650, 300:850]
-    cropped_image = img[380:1280, 30:930]
+    
+    x, y, w, h = 30, 381, 900, 899
+    out = img[y:y+h, x:x+w, :].copy()
 
     # Display cropped image
     # cv2.imshow("cropped", cropped_image)
     
     # Save the cropped image
-    cv2.imwrite("Cropped"+id+".jpg", cropped_image)
+    cv2.imwrite("Cropped"+id+".jpg", out)
     
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -100,7 +117,6 @@ def get_base64():
         encoded_string = base64.b64encode(image_file.read())
     # print(encoded_string)
     return encoded_string
->>>>>>> bbaeeb2d452dfb8370af3fc4b3be786dc8f5103c
 
 if __name__ == "__main__":
     app.run(debug=False)
