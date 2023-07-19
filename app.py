@@ -13,6 +13,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from time import sleep
 from selenium.webdriver.chrome.options import Options
+import requests
+import json
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -25,7 +27,7 @@ def hello():
 @app.route('/findedge')
 def findedged():
     # path = id+'.jpg'
-    path = '1.jpg'
+    path = '2.jpg'
     img = cv2.imread(path)
     print(img.shape) # Print image shape
     
@@ -56,7 +58,7 @@ def findedged():
     # cv2.imshow('out', out)
         
     # Save the cropped image
-    cv2.imwrite("out1.jpg", out)
+    cv2.imwrite("out.jpg", out)
 
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -64,11 +66,17 @@ def findedged():
 
 @app.route('/worktoken')
 def get_predictmotor():
-    # print(request.args.get)
     text = request.args.get('text')
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
     words = set(thai_words())  # thai_words() returns frozenset
-    words.add("ข้อมูลจำเพาะ") 
-    words.add("หมายเลขใบอนุญาต/อย.")
+    my_array = np.asarray(dicts)
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    # print(words)
     custom_tokenizer = Tokenizer(words)
     result = custom_tokenizer.word_tokenize(text)
     result = " ".join(result)
