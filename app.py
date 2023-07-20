@@ -65,7 +65,7 @@ def findedged():
     return str(x)+" " +str(y)+" " +str(w)+" " +str(h)
 
 @app.route('/worktoken')
-def get_predictmotor():
+def worktoken():
     text = request.args.get('text')
     x = requests.get('http://localhost:8081/api/dicts?status=1')
     dicts = x.text
@@ -80,9 +80,134 @@ def get_predictmotor():
     custom_tokenizer = Tokenizer(words)
     result = custom_tokenizer.word_tokenize(text)
     result = " ".join(result)
+    
     result = result.replace('  ', '')
-    result = result.replace(' ', '<span style="color:red"> | </span>')
+    result = result.replace(' ', ' | ')
+    # result = result.replace(' ', '<span style="color:red"> | </span>')
     return result
+
+@app.route('/matchname')
+def matchname():
+    category = [request.args.get('category')]
+    name = request.args.get('name')
+    name_real = request.args.get('name_real')
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
+    words = set(thai_words())  # thai_words() returns frozenset
+    my_array = np.asarray(dicts)
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    # print(words)
+    custom_tokenizer = Tokenizer(words)
+    name_result = custom_tokenizer.word_tokenize(name)
+    # print(name_result)
+    # print(type(name_result))
+    namereal_result = custom_tokenizer.word_tokenize(name_real)
+    name_match = []
+    name_list = ''
+    for name_word in name_result:
+        if name_word != ' ':
+            if any(word.startswith(name_word) for word in namereal_result):
+                print(name_word)
+                name_match.append(name_word)
+    
+    for item in name_result:
+        na = item
+        if item != ' ' and item != '(' and item != ')':
+            if any(word.startswith(item) for word in name_match):
+                    na = '<span style="color:red">'+item+'</span>' 
+        name_list += na
+    # print(name_list)
+    # print(category)
+    value = {
+        "category": category,
+        "name": name_list,
+    }
+    # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
+    return str(name_list)
+
+@app.route('/matchcategory')
+def matchcategory():
+    category = request.args.get('category')
+    category_real = request.args.get('category_real')
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
+    words = set(thai_words())  # thai_words() returns frozenset
+    my_array = np.asarray(dicts)
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    # print(words)
+    custom_tokenizer = Tokenizer(words)
+    name_result = custom_tokenizer.word_tokenize(category)
+    # print(name_result)
+    # print(type(name_result))
+    namereal_result = custom_tokenizer.word_tokenize(category_real)
+    name_match = []
+    name_list = ''
+    # print(name_result)
+    # print(namereal_result)
+    for name_word in namereal_result:
+        if name_word != ' ':
+            if any(word.startswith(name_word) for word in name_result):
+                # print(name_word)
+                name_match.append(name_word)
+    print(name_match)
+    print(name_result)
+    for item in name_result:
+        na = ''
+        if item != ' ' and item != '(' and item != ')':
+            if any(word.startswith(item) for word in name_match):
+                    na = '<span style="color:red">'+item+'</span>' 
+        name_list += na
+
+    # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
+    return str(name_list)
+
+
+# @app.route('/matchcategory')
+# def matchcategory():
+#     category = request.args.get('category')
+#     category_real = request.args.get('category_real')
+#     x = requests.get('http://localhost:8081/api/dicts?status=1')
+#     dicts = x.text
+#     dicts = json.loads(dicts)
+#     words = set(thai_words())  # thai_words() returns frozenset
+#     # print(words)
+#     my_array = np.asarray(dicts)
+#     for restaurant in my_array:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+#     # print(words)
+#     custom_tokenizer = Tokenizer(words)
+#     category_real = custom_tokenizer.word_tokenize(category_real)
+#     category = custom_tokenizer.word_tokenize(category)
+#     name_match = []
+#     name_list = ''
+#     # print(category)
+#     # print(category_real)
+#     for name_word in category:
+#         if name_word != ' ':
+#             if any(word.startswith(name_word) for word in category_real):
+#                 # print(name_word)
+#                 name_match.append(name_word)
+    
+#     for item in category:
+#         na = item
+#         if item != ' ' and item != '(' and item != ')':
+#             if any(word.startswith(item) for word in name_match):
+#                     na = '<span style="color:red">'+item+'</span>' 
+#         name_list += na + ' '
+#     # print(name_list)
+                
+#     return str(name_list)
+
 
 @app.route('/scraping')
 def scraping():
@@ -116,6 +241,22 @@ def scraping():
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
     return "success"
+
+@app.route('/scrapingcontent')
+def scrapingcontent():
+    path = request.args.get('path')
+    path = path.replace("'",'')
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--window-size=960,720')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get('file:///Users/ponnipa/Documents/GitHub/fda-backend/'+path)
+    # print(driver.page_source) 
+    inputElement = driver.find_element(By.CLASS_NAME,"product-detail")
+    the_text = inputElement.text
+    # print(the_text)
+    return the_text
+
 
 @app.route('/base64')
 def get_base64():
