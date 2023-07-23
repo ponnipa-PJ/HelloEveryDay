@@ -15,11 +15,16 @@ from time import sleep
 from selenium.webdriver.chrome.options import Options
 import requests
 import json
-
+# from ocrmac import ocrmac
+    
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+# annotations = ocrmac.OCR('Cropped2.jpg').recognize()
+# print(annotations)
+# ocrmac.OCR('Cropped3.jpg').annotate_PIL()
+  
 @app.route('/')
 def hello():
     return "Welcome To WebService"
@@ -67,6 +72,7 @@ def findedged():
 @app.route('/worktoken')
 def worktoken():
     text = request.args.get('text')
+    namereal_result = request.args.get('namereal_result')
     x = requests.get('http://localhost:8081/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
@@ -79,12 +85,32 @@ def worktoken():
     # print(words)
     custom_tokenizer = Tokenizer(words)
     result = custom_tokenizer.word_tokenize(text)
-    result = " ".join(result)
+    namereal_result = custom_tokenizer.word_tokenize(namereal_result)
+    # result = " ".join(result)
     
-    result = result.replace('  ', '')
-    result = result.replace(' ', ' | ')
+    # result = result.replace('  ', '')
+    # result = result.replace(' ', ' | ')
+    
     # result = result.replace(' ', '<span style="color:red"> | </span>')
-    return result
+    name_match = []
+    name_list = ''
+    print(name_match)
+    for name_word in result:
+        if name_word != ' ':
+            if any(word.startswith(name_word) for word in namereal_result):
+                print(name_word)
+                name_match.append(name_word)
+    print(name_match)
+    for item in result:
+        na = item
+        if item != ' ' and item != '(' and item != ')':
+            if any(word.startswith(item) for word in name_match):
+                    na = ' | <span style="color:red">'+item+'</span>' 
+        name_list += na
+    # print(name_list)
+    # print(category)
+    # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
+    return str(name_list)
 
 @app.route('/matchname')
 def matchname():
@@ -164,6 +190,7 @@ def matchcategory():
         if item != ' ' and item != '(' and item != ')':
             if any(word.startswith(item) for word in name_match):
                     na = '<span style="color:red">'+item+'</span>' 
+                    # na =item
         name_list += na
 
     # print(json.dumps(value, ensure_ascii=False).encode('utf8'))

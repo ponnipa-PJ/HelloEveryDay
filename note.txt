@@ -1,4 +1,4 @@
-python -m venv myenv
-source myenv/bin/activate
-python -m pip freeze > requirements.txt
- python3 app.py
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt 
+python3 app.py
