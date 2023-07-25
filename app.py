@@ -83,10 +83,25 @@ def worktoken():
         # print (restaurant['name'])
         value = restaurant['name']
         words.add(value) 
+        
+    cat = requests.get('http://localhost:8081/api/fdatypes')
+    cats = cat.text
+    cats = json.loads(cats)
+    my_array_cat = np.asarray(cats)
+    for arr in my_array_cat:
+        # print (restaurant['name'])
+        arra = arr['name']
+        words.add(arra) 
+        
     # print(words)
     custom_tokenizer = Tokenizer(words)
     name_word = custom_tokenizer.word_tokenize(text)
     namereal_result = custom_tokenizer.word_tokenize(namereal_result)
+    
+    for arr in my_array_cat:
+        # print (restaurant['name'])
+        arra = arr['name']
+        namereal_result.append(arra) 
     # result = " ".join(result)
     
     # result = result.replace('  ', '')
@@ -214,7 +229,8 @@ def matchcategory():
             if any(word.startswith(item) for word in name_match):
                     na = '<span style="color:red">'+item+'</span>' 
                     # na =item
-        name_list += na
+                    name_list = na
+                    break
 
     # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
     return str(name_list)
