@@ -24,7 +24,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
-  
+pathbackend = requests.get('http://localhost:8081/api/database_path')
+# url = data.backend_path
+backend_path = json.loads(pathbackend.text)
+backend_path = backend_path["backend_path"]
+
 @app.route('/')
 def hello():
     return "Welcome To WebService"
@@ -284,7 +288,7 @@ def scraping():
     options.add_argument('--headless')
     options.add_argument('--window-size=960,720')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get('file:///Users/ponnipa/Documents/GitHub/fda-backend/'+path)
+    driver.get(backend_path+path)
     sleep(1)
 # (1382, 2400, 3)
     driver.get_screenshot_as_file(id+".jpg")
@@ -310,19 +314,35 @@ def scraping():
 
 @app.route('/scrapingcontent')
 def scrapingcontent():
+    print(backend_path)
     path = request.args.get('path')
     path = path.replace("'",'')
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--window-size=960,720')
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get('file:///Users/ponnipa/Documents/GitHub/fda-backend/'+path)
+    driver.get(backend_path+path)
     # print(driver.page_source) 
     inputElement = driver.find_element(By.CLASS_NAME,"product-detail")
     the_text = inputElement.text
     # print(the_text)
     return the_text
 
+@app.route('/scrapingheader')
+def scrapingheader():
+    print(backend_path)
+    path = request.args.get('path')
+    path = path.replace("'",'')
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--window-size=960,720')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get(backend_path+path)
+    # print(driver.page_source) 
+    inputElement = driver.find_element(By.CLASS_NAME,"_44qnta")
+    the_text = inputElement.text
+    # print(the_text)
+    return the_text
 
 @app.route('/base64')
 def get_base64():
