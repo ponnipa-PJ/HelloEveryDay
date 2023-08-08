@@ -36,7 +36,7 @@ def hello():
 @app.route('/findedge')
 def findedged():
     # path = id+'.jpg'
-    path = '2.jpg'
+    path = '10.jpg'
     img = cv2.imread(path)
     print(img.shape) # Print image shape
     
@@ -320,6 +320,11 @@ def scrapingcontent():
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--window-size=960,720')
+    # options = webdriver.ChromeOptions()
+    # service = Service()
+    # options.add_argument('--headless')
+    # options.add_argument('--window-size=960,720')
+    # driver = webdriver.Chrome(service=service, options=options)
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get(backend_path+path)
     # print(driver.page_source) 
