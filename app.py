@@ -131,6 +131,8 @@ def worktoken():
                 print(na)
             else:
                 na = item + ' | '
+        else:
+            na = ''
         
         name_list += na
     # print(name_list)
