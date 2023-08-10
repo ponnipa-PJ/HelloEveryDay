@@ -87,7 +87,6 @@ def worktoken():
         # print (restaurant['name'])
         value = restaurant['name']
         words.add(value) 
-        
     cat = requests.get('http://localhost:8081/api/fdatypes')
     cats = cat.text
     cats = json.loads(cats)
@@ -143,6 +142,29 @@ def worktoken():
     # print(Str)
     return str(Str)
 
+@app.route('/tokenkeyword')
+def tokenkeyword():
+    text = request.args.get('text')
+    
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
+    words = set(thai_words())  # thai_words() returns frozenset
+    my_array = np.asarray(dicts)
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    
+    # print(words)
+    custom_tokenizer = Tokenizer(words)
+    name_word = custom_tokenizer.word_tokenize(text)
+    # name_word = word_tokenize(text, engine="longest")
+    
+    
+    return str(name_word)
+
+
 @app.route('/matchname')
 def matchname():
     category = [request.args.get('category')]
@@ -165,26 +187,39 @@ def matchname():
     namereal_result = custom_tokenizer.word_tokenize(name_real)
     name_match = []
     name_list = ''
-    for name_word in name_result:
+    for name_word in namereal_result:
         if name_word != ' ':
-            if any(word.startswith(name_word) for word in namereal_result):
-                print(name_word)
+            if any(word.startswith(name_word) for word in name_result):
+                # print(name_word)
                 name_match.append(name_word)
-    
+    # print(name_result)
+    print(name_match)
+    listfull = []
     for item in name_result:
-        na = item
-        if item != ' ' and item != '(' and item != ')':
+        na = ''
+        if item != ' ' and item != '(' and item != ')' and item != 'ผล':
             if any(word.startswith(item) for word in name_match):
-                    na = '<span style="color:red">'+item+'</span>' 
+                na = '<span style="color:red">'+item+'</span>'
+                listfull.append(na)
+                    # na = item
         name_list += na
-    # print(name_list)
-    # print(category)
-    value = {
-        "category": category,
-        "name": name_list,
-    }
-    # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
+        
+    
+    # print(listfull)
+    res = [*set(listfull)]
+    listToStr = ' '.join([str(elem) for elem in res])
+    listToStr.replace('ผล','')
     return str(name_list)
+
+def Repeat(x):
+    _size = len(x)
+    repeated = ''
+    for i in range(_size):
+        k = i + 1
+        for j in range(k, _size):
+            if x[i] == x[j] and x[i] not in repeated:
+                repeated += '<span style="color:red">'+x[i]+'</span>&nbsp;'
+    return repeated
 
 @app.route('/matchcategory')
 def matchcategory():
