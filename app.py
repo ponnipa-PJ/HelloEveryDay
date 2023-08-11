@@ -124,7 +124,7 @@ def worktoken():
     # print(name_match)
     # print(name_word)
     for item in name_word:
-        if item != ' ' and item != '(' and item != ')':
+        if item != ' ' and item != '(' and item != ')' and len(item) > 1:
             if any(word.startswith(item) for word in name_match):
                 na = ' | <span style="color:red">'+item+'</span>' 
                 print(na)
@@ -193,14 +193,17 @@ def matchname():
                 # print(name_word)
                 name_match.append(name_word)
     # print(name_result)
-    print(name_match)
+    # print(name_match)
     listfull = []
     for item in name_result:
         na = ''
         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
             if any(word.startswith(item) for word in name_match):
-                na = '<span style="color:red">'+item+'</span>'
-                listfull.append(na)
+                print('list',listfull)
+                if item not in listfull and len(item) > 1:
+                    print(item)
+                    listfull.append(item)
+                    na = '<span style="color:red">'+item+'</span>&nbsp; '
                     # na = item
         name_list += na
         
@@ -267,7 +270,7 @@ def matchcategory():
     for item in name_result:
         na = ''
         if item != ' ' and item != '(' and item != ')':
-            if any(word.startswith(item) for word in name_match):
+            if any(word.startswith(item) for word in name_match) and len(item) > 1:
                     na = '<span style="color:red">'+item+'</span>' 
                     # na =item
                     name_list = na
