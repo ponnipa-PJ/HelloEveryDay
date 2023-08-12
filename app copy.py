@@ -45,10 +45,10 @@ def scraping():
 
     driver.get_screenshot_as_file("2.jpg")
     driver.quit()
-    print("end...")
+    # print("end...")
     path = '2.jpg'
     img = cv2.imread(path)
-    print(img.shape) # Print image shape
+    # print(img.shape) # Print image shape
     # cv2.imshow("original", img)
     # Cropping an image
     # top bottom left right
@@ -69,7 +69,7 @@ def scraping():
 def get_base64():
     with open("Cropped Image2.jpg", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
-    print(encoded_string)
+    # print(encoded_string)
     return encoded_string
 
 if __name__ == "__main__":

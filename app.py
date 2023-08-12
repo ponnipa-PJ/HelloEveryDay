@@ -38,7 +38,7 @@ def findedged():
     # path = id+'.jpg'
     path = '10.jpg'
     img = cv2.imread(path)
-    print(img.shape) # Print image shape
+    # print(img.shape) # Print image shape
     
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     s = hsv[:, :, 1]
@@ -95,8 +95,21 @@ def worktoken():
         # print (restaurant['name'])
         arra = arr['name']
         words.add(arra) 
+    
+    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = keyword_dicts.text
+    keyword_dicts = json.loads(keyword_dicts)
+    keyword_dicts = np.asarray(keyword_dicts)
+    key = ''
+    
+    for restaurant in keyword_dicts:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        key += restaurant['name']
+        words.add(value) 
         
-    # print(words)
+    # print(key)
+    namereal_result = namereal_result + key
     custom_tokenizer = Tokenizer(words)
     name_word = custom_tokenizer.word_tokenize(text)
     namereal_result = custom_tokenizer.word_tokenize(namereal_result)
@@ -121,24 +134,35 @@ def worktoken():
             if any(word.startswith(te) for word in namereal_result):
                 # print(name_word)
                 name_match.append(te)
-    # print(name_match)
-    # print(name_word)
+    # print('name_match',name_match)
+    # print('name_word',name_word)
     for item in name_word:
-        if item != ' ' and item != '(' and item != ')' and len(item) > 1:
+        # print(item)
+        if item != ' ' and item != '(' and item != ')':
+            # print(item)
             if any(word.startswith(item) for word in name_match):
-                na = ' | <span style="color:red">'+item+'</span>' 
-                print(na)
+                # cut = custom_tokenizer.word_tokenize(item)
+                # for c in cut:
+                if item in namereal_result:
+                    # print(item)
+                    na = ' | <span style="color:red">'+item+'</span>' 
+                else:
+                    na = ' | ' + item
+                    
+                # print(na)
             else:
-                na = item + ' | '
+                na = ' | ' + item
+                # print('item',na)
         else:
             na = ''
-        
         name_list += na
+    
+    # name_list = name_list.replace(" | | '",'')
     # print(name_list)
     # print(category)
     # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
-    Str = name_list[:-1]
-    Str = Str[:-1]
+    Str = name_list.split('|', 1)[-1]
+    # Str = Str[:-1]
     # print(Str)
     return str(Str)
 
@@ -199,9 +223,9 @@ def matchname():
         na = ''
         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
             if any(word.startswith(item) for word in name_match):
-                print('list',listfull)
+                # print('list',listfull)
                 if item not in listfull and len(item) > 1:
-                    print(item)
+                    # print(item)
                     listfull.append(item)
                     na = '<span style="color:red">'+item+'</span>&nbsp; '
                     # na = item
@@ -214,10 +238,91 @@ def matchname():
     listToStr.replace('ผล','')
     return str(name_list)
 
+# @app.route('/checkkeyword')
+# def checkkeyword():
+#     name = request.args.get('name')
+#     name_real = request.args.get('name_real')
+#     # name_real = 'ช่วยลดความอยากอาหาร'
+#     x = requests.get('http://localhost:8081/api/dicts?status=1')
+#     dicts = x.text
+#     dicts = json.loads(dicts)
+#     words = set(thai_words())  # thai_words() returns frozenset
+#     my_array = np.asarray(dicts)
+    
+#     for restaurant in my_array:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+    
+#     keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+#     keyword_dicts = keyword_dicts.text
+#     keyword_dicts = json.loads(keyword_dicts)
+#     keyword_dicts = np.asarray(keyword_dicts)
+    
+#     for restaurant in keyword_dicts:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+        
+#     custom_tokenizer = Tokenizer(words)
+#     name_result = custom_tokenizer.word_tokenize(name)
+#     namereal_result = custom_tokenizer.word_tokenize(name_real)
+#     # print(name_result)
+#     # print('namereal_result',namereal_result)
+    
+#     name_match = []
+#     name_list = ''
+#     sentence = ''
+#     for name_word in namereal_result:
+#         if name_word != ' ':
+#             if any(word.startswith(name_word) for word in name_result):
+#                 # print(name_word)
+#                 name_match.append(name_word)
+#     # print(name_result)
+#     # print(name_match)
+#     listfull = []
+#     for item in name_result:
+#         na = ''
+#         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
+#             if any(word.startswith(item) for word in name_match):
+#                 print('list',item)
+#                 if item not in listfull:
+#                     print(item)
+#                     listfull.append(item)
+#                     na = item
+#                     # na = item
+#         name_list += na
+    
+#     name_list = name_real
+#     # print(name_list)
+#     # print(listfull)
+#     # print(name.index(name_list))
+#     front = name[:name.index(name_list)]
+#     # print('front',front)
+#     frontsplit = front.split(" ")
+#     # print(frontsplit)
+#     # print(len(frontsplit))
+#     for f in frontsplit:
+#         last_item = frontsplit[-1]
+#         if last_item == '':
+#             frontsplit = frontsplit[:-1] 
+         
+#     frontsentence = (frontsplit[-1])
+#     # print(frontsplit)
+#     back = name[name.index(name_list):]
+#     backsplit = back.split(" ")
+#     # print(len(backsplit))
+#     if len(backsplit) == 2:
+#         backsentence = backsplit[1]
+#     else:
+#         backsentence = backsplit[1]+ " " +backsplit[2]
+    
+#     sentence = frontsentence + " " + '<span style="color:red">'+name_list+'</span>'+ " " +backsentence
+#     return str(sentence)
+
 @app.route('/checkkeyword')
 def checkkeyword():
     name = request.args.get('name')
-    name_real = request.args.get('name_real')
     # name_real = 'ช่วยลดความอยากอาหาร'
     x = requests.get('http://localhost:8081/api/dicts?status=1')
     dicts = x.text
@@ -229,10 +334,23 @@ def checkkeyword():
         # print (restaurant['name'])
         value = restaurant['name']
         words.add(value) 
+    
+    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = keyword_dicts.text
+    keyword_dicts = json.loads(keyword_dicts)
+    keyword_dicts = np.asarray(keyword_dicts)
+    
+    k = ''
+    for restaurant in keyword_dicts:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        k+=restaurant['name']
+        words.add(value) 
         
+    # print('k',k)
     custom_tokenizer = Tokenizer(words)
     name_result = custom_tokenizer.word_tokenize(name)
-    namereal_result = custom_tokenizer.word_tokenize(name_real)
+    namereal_result = custom_tokenizer.word_tokenize(k)
     # print(name_result)
     # print('namereal_result',namereal_result)
     
@@ -244,46 +362,50 @@ def checkkeyword():
             if any(word.startswith(name_word) for word in name_result):
                 # print(name_word)
                 name_match.append(name_word)
-    # print(name_result)
-    # print(name_match)
+    # print('name_result',name_result)
+    # print('name_match',name_match)
     listfull = []
     for item in name_result:
         na = ''
         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
-            if any(word.startswith(item) for word in name_match):
-                print('list',item)
+            # print(item)
+            if any(word.startswith(item) for word in namereal_result):
+                # print('list',item)
                 if item not in listfull:
-                    print(item)
+                    # print(item)
                     listfull.append(item)
                     na = item
                     # na = item
         name_list += na
     
-    name_list = name_real
-    # print(name_list)
+    # name_list = name_real
     # print(listfull)
-    # print(name.index(name_list))
-    front = name[:name.index(name_list)]
-    # print('front',front)
-    frontsplit = front.split(" ")
-    # print(frontsplit)
-    # print(len(frontsplit))
-    for f in frontsplit:
-        last_item = frontsplit[-1]
-        if last_item == '':
-            frontsplit = frontsplit[:-1] 
-         
-    frontsentence = (frontsplit[-1])
-    # print(frontsplit)
-    back = name[name.index(name_list):]
-    backsplit = back.split(" ")
-    # print(len(backsplit))
-    if len(backsplit) == 2:
-        backsentence = backsplit[1]
-    else:
-        backsentence = backsplit[1]+ " " +backsplit[2]
-    
-    sentence = frontsentence + " " + '<span style="color:red">'+name_list+'</span>'+ " " +backsentence
+    for l in listfull:
+        
+        # print(listfull)
+        # print(name.index(name_list))
+        front = name[:name.index(l)]
+        # print('front',front)
+        frontsplit = front.split(" ")
+        # print('frontsplit',frontsplit)
+        # print(len(frontsplit))
+        for f in frontsplit:
+            last_item = frontsplit[-1]
+            if last_item == '':
+                frontsplit = frontsplit[:-1] 
+            
+        frontsentence = (frontsplit[-1])
+        # print(frontsplit)
+        back = name[name.index(l):]
+        backsplit = back.split(" ")
+        # print('backsplit',backsplit)
+        if len(backsplit) == 2:
+            backsentence = backsplit[1]
+        else:
+            backsentence = backsplit[1]+ " " +backsplit[2]
+        
+        sentence += frontsentence + " " + '<span style="color:red">'+backsplit[0]+'</span>'+ " " +backsentence+'</br>'
+        # print(sentence)
     return str(sentence)
 
 
@@ -299,7 +421,6 @@ def Repeat(x):
 
 @app.route('/matchcategory')
 def matchcategory():
-    print('1')
     category = request.args.get('category')
     
     x = requests.get('http://localhost:8081/api/dicts?status=1')
@@ -338,7 +459,7 @@ def matchcategory():
             if any(word.startswith(name_word) for word in name_result):
                 # print(name_word)
                 name_match.append(name_word)
-    print(name_match)
+    # print(name_match)
     # print(name_result)
     for item in name_result:
         na = ''
@@ -411,10 +532,10 @@ def scraping():
 # (1382, 2400, 3)
     driver.get_screenshot_as_file(id+".jpg")
     driver.quit()
-    print("end...")
+    # print("end...")
     path = id+'.jpg'
     img = cv2.imread(path)
-    print(img.shape) # Print image shape
+    # print(img.shape) # Print image shape
     # cv2.imshow("original", img)
     
     x, y, w, h = 30, 381, 900, 899
@@ -432,7 +553,7 @@ def scraping():
 
 @app.route('/scrapingcontent')
 def scrapingcontent():
-    print(backend_path)
+    # print(backend_path)
     path = request.args.get('path')
     path = path.replace("'",'')
     # options = Options()
@@ -445,7 +566,7 @@ def scrapingcontent():
     driver = webdriver.Chrome(service=service, options=options)
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get(backend_path+path)
-    print(backend_path+path)
+    # print(backend_path+path)
     # print(driver.page_source) 
     inputElement = driver.find_element(By.CLASS_NAME,"product-detail")
     the_text = inputElement.text
@@ -454,7 +575,7 @@ def scrapingcontent():
 
 @app.route('/scrapingheader')
 def scrapingheader():
-    print(backend_path)
+    # print(backend_path)
     path = request.args.get('path')
     path = path.replace("'",'')
     options = webdriver.ChromeOptions()
