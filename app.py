@@ -76,6 +76,7 @@ def findedged():
 @app.route('/worktoken')
 def worktoken():
     text = request.args.get('text')
+    text = text.replace(' ', '')
     namereal_result = request.args.get('namereal_result')
     # print(namereal_result)
     x = requests.get('http://localhost:8081/api/dicts?status=1')
@@ -96,20 +97,20 @@ def worktoken():
         arra = arr['name']
         words.add(arra) 
     
-    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
-    keyword_dicts = keyword_dicts.text
-    keyword_dicts = json.loads(keyword_dicts)
-    keyword_dicts = np.asarray(keyword_dicts)
-    key = ''
+    # keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    # keyword_dicts = keyword_dicts.text
+    # keyword_dicts = json.loads(keyword_dicts)
+    # keyword_dicts = np.asarray(keyword_dicts)
+    # key = ''
     
-    for restaurant in keyword_dicts:
-        # print (restaurant['name'])
-        value = restaurant['name']
-        key += restaurant['name']
-        words.add(value) 
+    # for restaurant in keyword_dicts:
+    #     # print (restaurant['name'])
+    #     value = restaurant['name']
+    #     key += restaurant['name']
+    #     words.add(value) 
         
     # print(key)
-    namereal_result = namereal_result + key
+    namereal_result = namereal_result 
     custom_tokenizer = Tokenizer(words)
     name_word = custom_tokenizer.word_tokenize(text)
     namereal_result = custom_tokenizer.word_tokenize(namereal_result)
@@ -165,6 +166,93 @@ def worktoken():
     # Str = Str[:-1]
     # print(Str)
     return str(Str)
+
+@app.route('/worktokendesc')
+def worktokendesc():
+    text = request.args.get('text')
+    namereal_result = request.args.get('namereal_result')
+    # print(namereal_result)
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
+    words = set(thai_words())  # thai_words() returns frozenset
+    my_array = np.asarray(dicts)
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    cat = requests.get('http://localhost:8081/api/fdatypes')
+    cats = cat.text
+    cats = json.loads(cats)
+    my_array_cat = np.asarray(cats)
+    for arr in my_array_cat:
+        # print (restaurant['name'])
+        arra = arr['name']
+        words.add(arra) 
+    
+    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = keyword_dicts.text
+    keyword_dicts = json.loads(keyword_dicts)
+    keyword_dicts = np.asarray(keyword_dicts)
+    key = []
+    
+    for restaurant in keyword_dicts:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        key.append(restaurant['name'])
+        words.add(value) 
+        
+    
+    custom_tokenizer = Tokenizer(words)
+    name_word = custom_tokenizer.word_tokenize(text)
+    # namereal_result = custom_tokenizer.word_tokenize(key)
+    namereal_result = key
+    # print(namereal_result)
+    # print(key)
+    # print(name_word)
+    name_match = []
+    name_list = ''
+    # print(namereal_result)
+    # print(text)
+    # print(name_word)
+    for te in text:
+        if te != ' ':
+            if any(word.startswith(te) for word in namereal_result):
+                # print(name_word)
+                name_match.append(te)
+    # print('name_match',name_match)
+    # print('name_word',name_word)
+    for item in name_word:
+        # print(item)
+        if item != ' ' and item != '(' and item != ')':
+            # print(item)
+            if any(word.startswith(item) for word in namereal_result):
+                # cut = custom_tokenizer.word_tokenize(item)
+                # for c in cut:
+                if item in namereal_result:
+                    # print(item)
+                    na = '<span style="color:red">'+item+'</span>' 
+                else:
+                    na = item
+                    
+                # print(na)
+            else:
+                
+                na = item
+                # print('item',na)
+        else:
+            na = ' '
+        name_list += na
+    
+    # name_list = name_list.replace(" | | '",'')
+    # print(name_list)
+    # print(category)
+    # print(json.dumps(value, ensure_ascii=False).encode('utf8'))
+    Str = name_list.split('|', 1)[-1]
+    # Str = Str[:-1]
+    # print(Str)
+    return str(Str)
+
 
 @app.route('/tokenkeyword')
 def tokenkeyword():
@@ -320,9 +408,185 @@ def matchname():
 #     sentence = frontsentence + " " + '<span style="color:red">'+name_list+'</span>'+ " " +backsentence
 #     return str(sentence)
 
+# @app.route('/checkkeyword')
+# def checkkeyword():
+#     name = request.args.get('name')
+#     # name = name.replace(' ', '')
+#     # name_real = 'ช่วยลดความอยากอาหาร'
+#     x = requests.get('http://localhost:8081/api/dicts?status=1')
+#     dicts = x.text
+#     dicts = json.loads(dicts)
+#     words = set(thai_words())  # thai_words() returns frozenset
+#     my_array = np.asarray(dicts)
+    
+#     for restaurant in my_array:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+    
+#     keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+#     keyword_dicts = keyword_dicts.text
+#     keyword_dicts = json.loads(keyword_dicts)
+#     keyword_dicts = np.asarray(keyword_dicts)
+    
+#     k = ''
+#     for restaurant in keyword_dicts:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         k+=restaurant['name']
+#         words.add(value) 
+#     # print('k',k)
+#     custom_tokenizer = Tokenizer(words)
+#     name_result = custom_tokenizer.word_tokenize(name)
+#     namereal_result = custom_tokenizer.word_tokenize(k)
+#     # print('name_result',name_result)
+#     # print('namereal_result',namereal_result)
+    
+#     name_match = []
+#     name_list = ''
+#     sentence = []
+#     for name_word in namereal_result:
+#         if name_word != ' ':
+#             if any(word.startswith(name_word) for word in name_result):
+#                 # print(name_word)
+#                 name_match.append(name_word)
+#     # print('name_result',name_result)
+#     # print('name_match',name_match)
+#     # print('name_match',name_match)
+#     listfull = []
+#     frontsentence =[]
+#     for item in name_result:
+#         na = ''
+#         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
+#             # print(item)
+#             # if any(word.startswith(item) for word in namereal_result):
+#             if item in namereal_result:
+                
+#                 # print('list',item)
+#                 if item not in listfull:
+#                     # print(item)
+#                     listfull.append(item)
+#                     na = item
+#                     # na = item
+#         name_list += na
+    
+#     # name_list = name_real
+#     name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน ช่วยกระตุ้นการเผาผลาญและการขับถ่าย กำจัดไขมันส่วนเกิน ช่วยดูแลรูปร่างให้กระชับ'
+#     # print('name',name)
+#     # print(listfull)
+#     for n in range(len(name)):
+#         # print(n)
+#         for l in listfull:
+#             for ll in l:
+#                 # print(ll,'ll')
+#                 # print(name[n],'n')
+#                 if name[n] == ll:
+#                     # print(name[n:n+len(l)])
+#                     if l == name[n:n+len(l)]:
+#                         # print(name[n:n+len(l)])
+#                         front = name[:n+len(l)]
+#                         print('front',front)
+#                         frontsplit = front.split(" ")
+#                         # print('frontsplit',frontsplit)
+#                         last_item = frontsplit[-1]
+#                         # print('last_item',last_item)
+#                         if last_item == '':
+#                             frontsplit = frontsplit[:-1] 
+#                             frontsentence = frontsplit[-1]
+#                         elif last_item == name[n:n+len(l)]:
+#                             # print('2')
+#                             frontsentence = frontsplit[-2]
+#                         elif last_item in frontsplit:
+#                             # print('3')
+#                             frontsentence = frontsplit[-2]
+#                         else:
+#                             # print('4')
+#                             frontsentence = frontsplit[-1]
+                            
+                            
+#                         # print(frontsentence,'frontsentence')
+#                         back = name[n+len(l):]
+#                         backsplit = back.split(" ")
+#                         # print('back',back)
+#                         # print(backsplit)
+#                         # print(len(backsplit))
+                        
+#                         if len(backsplit) == 2:
+#                             backsentence = backsplit[1]
+#                         elif len(backsplit) == 1:
+#                             backsentence = ''
+#                         else:
+#                             backsentence = backsplit[1]+ " " +backsplit[2]
+                            
+#                         middlecheck = name[n:n+len(l)]+backsplit[0]
+#                         print('middlecheck',middlecheck)
+#                         print('name[n:n+len(l)]',name[n:n+len(l)])
+#                         if len(middlecheck) == len(name[n:n+len(l)]):
+                            
+#                             t = frontsplit[-1][:len(frontsplit[-1])-(len(name[n:n+len(l)]))]
+#                             # print('frontsplit',frontsplit[-1])
+#                             # print(len(frontsplit[-1])-(n+len(l)))
+#                             # print('t',t)
+#                             # print('frontsplit',frontsplit)
+#                             middle = t +'<span style="color:red">'+name[n:n+len(l)]+'</span>'
+#                             # frontsentence = frontsplit[-1]
+#                         else:
+#                             middle = '<span style="color:red">'+name[n:n+len(l)]+'</span>'+backsplit[0]
+#                         print('middle',middle)
+#                         print('middle',middle)
+#                         s = frontsentence + " " + middle + " " +backsentence +'</br>'
+#                         # for a in sentence:
+#                         if s not in sentence:
+#                             sentence.append(s)
+                            
+        
+            
+            
+            
+        
+#     # for m in listfull:
+#     #     # print(l)
+#     #     for l in name:
+#     #         # print('name_result[l]',name_result[l])
+#     #         # if  m == name_result[l] and name_result[l] != '':
+#     #         if any(word.startswith(l) for word in listfull) and l != ' ' and len(l) > 1:
+#                 # print(l)
+#                 # print(len(l))
+#                 # print(name_result[l-1])
+#                 # front = name[:name.index(m)]
+#                 # frontsplit = front.split(" ")
+#                 # for f in frontsplit:
+#                 #     last_item = frontsplit[-1]
+#                 #     if last_item == '':
+#                 #         frontsplit = frontsplit[:-1] 
+#                 #     frontsentence = (frontsplit[-1])
+#                 #     back = name[name.index(m):]
+#                 #     backsplit = back.split(" ")
+#                 #     # print('back',backsplit)
+#                 #     if len(backsplit) == 2:
+#                 #         backsentence = backsplit[1]
+#                 #     else:
+#                 #         backsentence = backsplit[1]+ " " +backsplit[2]
+#                 # # print('frontsplit',frontsplit)
+#                 # # print('backsentence',backsentence)
+#                 # # print(len(frontsplit))
+#                 # # sentence.append(name_result[l-1] + " " + '<span style="color:red">'+name_result[l]+'</span>'+ " " +name_result[l+1]+ " " +name_result[l+2])
+#                 # s = frontsentence + " " + '<span style="color:red">'+backsplit[0]+'</span>'+ " " +backsentence
+#                 # # for a in sentence:
+#                 # if s not in sentence:
+#                 #     sentence.append(s)
+                
+#                 # print(s)
+#                 # print(name_result[l])
+#                 # print(name_result[l+1])
+#     # print(sentence)
+    
+#     return sentence
+
 @app.route('/checkkeyword')
 def checkkeyword():
     name = request.args.get('name')
+    # name = name.replace(' ', '')
     # name_real = 'ช่วยลดความอยากอาหาร'
     x = requests.get('http://localhost:8081/api/dicts?status=1')
     dicts = x.text
@@ -341,35 +605,41 @@ def checkkeyword():
     keyword_dicts = np.asarray(keyword_dicts)
     
     k = ''
+    key = []
     for restaurant in keyword_dicts:
         # print (restaurant['name'])
         value = restaurant['name']
         k+=restaurant['name']
+        key.append(restaurant['name'])
         words.add(value) 
-        
     # print('k',k)
     custom_tokenizer = Tokenizer(words)
     name_result = custom_tokenizer.word_tokenize(name)
-    namereal_result = custom_tokenizer.word_tokenize(k)
-    # print(name_result)
+    # namereal_result = custom_tokenizer.word_tokenize(k)
+    # print('name_result',name_result)
     # print('namereal_result',namereal_result)
+    namereal_result = key
     
     name_match = []
     name_list = ''
-    sentence = ''
-    for name_word in namereal_result:
+    sentence = []
+    for name_word in key:
         if name_word != ' ':
             if any(word.startswith(name_word) for word in name_result):
                 # print(name_word)
                 name_match.append(name_word)
     # print('name_result',name_result)
     # print('name_match',name_match)
+    print('name_match',name_match)
     listfull = []
+    frontsentence =[]
     for item in name_result:
         na = ''
         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
             # print(item)
-            if any(word.startswith(item) for word in namereal_result):
+            # if any(word.startswith(item) for word in namereal_result):
+            if item in namereal_result:
+                
                 # print('list',item)
                 if item not in listfull:
                     # print(item)
@@ -379,34 +649,103 @@ def checkkeyword():
         name_list += na
     
     # name_list = name_real
-    # print(listfull)
-    for l in listfull:
-        
-        # print(listfull)
-        # print(name.index(name_list))
-        front = name[:name.index(l)]
-        # print('front',front)
-        frontsplit = front.split(" ")
-        # print('frontsplit',frontsplit)
-        # print(len(frontsplit))
-        for f in frontsplit:
-            last_item = frontsplit[-1]
-            if last_item == '':
-                frontsplit = frontsplit[:-1] 
-            
-        frontsentence = (frontsplit[-1])
-        # print(frontsplit)
-        back = name[name.index(l):]
-        backsplit = back.split(" ")
-        # print('backsplit',backsplit)
-        if len(backsplit) == 2:
-            backsentence = backsplit[1]
-        else:
-            backsentence = backsplit[1]+ " " +backsplit[2]
-        
-        sentence += frontsentence + " " + '<span style="color:red">'+backsplit[0]+'</span>'+ " " +backsentence+'</br>'
-        # print(sentence)
-    return str(sentence)
+    # name = 'หมู่ ในสัดส่วนที่เหมาะสมเป็นประจำ ไม่มีผลในการป้องกันหรือรักษาโรค สรรพคุณ ประโยชน์ของการกิน'
+    # print('listfull',listfull)
+    print(listfull)
+    for n in range(len(name)):
+        for l in listfull:
+            for ll in l:
+                # print(ll,'ll')
+                # print(name[n],'n')
+                if name[n] == ll:
+                    # print('name',name[n:n+len(l)])
+                    # print(l)
+                    if l == name[n:n+len(l)]:
+                        # print(l)
+                        # print(name[n:n+len(l)])
+                        front = name[:n+len(l)]
+                        # print('front',front)
+                        frontsplit = front.split(" ")
+                        print('frontsplit',frontsplit)
+                        last_item = frontsplit[-1]
+                        # print('last_item',last_item)
+                        frontsplit = [x for x in frontsplit if x]
+                        frontsentence = frontsplit[(len(frontsplit)-2)]
+                        # if last_item == '':
+                        #     frontsplit = frontsplit[:-1] 
+                        #     frontsentence = frontsplit[-1]
+                        # elif last_item == name[n:n+len(l)]:
+                        #     # print('2')
+                        #     frontsentence = frontsplit[-2]
+                        # elif last_item in frontsplit:
+                        #     # print('3')
+                        #     print(frontsplit[-2] + ' ' +frontsplit[-1])
+                        #     frontsentence = frontsplit[-2] + ' ' +frontsplit[-1]
+                        # else:
+                        #     # print('4')
+                        #     frontsentence = frontsplit[-1]
+                        # print('l',l,last_item)
+                        if l in last_item:
+                            # print('l')
+                            frontsentence = frontsentence + ' '+frontsplit[(len(frontsplit)-1)]
+                        
+                            
+                            
+                        print('frontsentence',frontsentence)
+                        back = name[n+len(l):]
+                        backsplit = back.split(" ")
+                        # print('back',back)
+                        # print(backsplit)
+                        # print(len(backsplit))
+                        
+                        if len(backsplit) == 2:
+                            backsentence = backsplit[1]
+                        elif len(backsplit) == 1:
+                            backsentence = ''
+                        else:
+                            backsentence = backsplit[1]+ " " +backsplit[2]
+                            
+                        # middlecheck = name[n:n+len(l)]+backsplit[0]
+                        # print('middlecheck',middlecheck)
+                        # print('name[n:n+len(l)]',name[n:n+len(l)])
+                        # if len(middlecheck) == len(name[n:n+len(l)]):
+                            
+                        #     t = frontsplit[-1][:len(frontsplit[-1])-(len(name[n:n+len(l)]))]
+                        #     # print('frontsplit',frontsplit[-1])
+                        #     # print(len(frontsplit[-1])-(n+len(l)))
+                        #     # print('t',t)
+                        #     # print('frontsplit',frontsplit)
+                        #     middle = t +'<span style="color:red">'+name[n:n+len(l)]+'</span>'
+                        #     # frontsentence = frontsplit[-1]
+                        # else:
+                        # print(name[n:n+len(l)])
+                        # if name[n:n+len(l)] in frontsentence:
+                        #     frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
+                        middle = backsplit[0]
+                        # print('name[n:n+len(l)]',name[n:n+len(l)])
+                        # print('frontsentence',frontsentence)
+                        # print('frontsentence',frontsentence)
+                        # print('middle',middle)
+                        # print('backsentence',backsentence)
+                        s = frontsentence + middle + " " +backsentence +'</br>'
+                        # for a in sentence:
+                        arrfront = ''
+                        if s not in sentence:
+                            arr =frontsentence.split()
+                            last_front = arr[-1]
+                            # print('arr',arr)
+                            # print('last_front',last_front)
+                            for i in range(len(arr)-1):
+                                arrfront += arr[i] + ' '
+                                
+                            bb = last_front.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
+                            frontsentence = arrfront + bb
+                            # frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
+                            s = frontsentence + middle + " " +backsentence +'</br>'
+                            sentence.append(s)
+                            
+    
+    return sentence
 
 
 def Repeat(x):
