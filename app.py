@@ -308,8 +308,10 @@ def worktokendesc():
         t = name.replace(k,'<span style="color:red">'+k+'</span>')
         name = t
 
-    # print(t)
-    # print('name',name)
+    print(t)
+    print('name',name)
+    # array_desc = tokenlist(name)
+    
     return name
 
 
@@ -684,6 +686,7 @@ def checkkeyword():
     alltext = []
     backsentence = ''
     frontsentence = ''
+    removeback = ''
     # print(listfull)
     for n in range(len(name)):
         for l in key:
@@ -718,7 +721,7 @@ def checkkeyword():
                         backsplit = back.split(" ")
                         backsentence =''
                         # print('back',back)
-                        # print(backsplit)
+                        # print('backsplit',backsplit)
                         # print(len(backsplit))
                         
                         if len(backsplit) == 2:
@@ -727,7 +730,13 @@ def checkkeyword():
                             backsentence = ''
                         else:
                             for sett in range(setting_back):
-                                backsentence += backsplit[sett+1] +" "
+                                # print('splir',sett+1, len(backsplit))
+                                # print(backsplit[sett+1])
+                                if sett+1 < len(backsplit):
+                                    backsentence += backsplit[sett+1] +" "
+
+                                    
+                                # backsentence += backsplit[sett+1] +" "
                                 # print(backsentence)
                             # backsentence = backsplit[1]+ " " +backsplit[2]
                             
@@ -771,8 +780,31 @@ def checkkeyword():
                                 
                         # print('sentences',sentences)
                         # if len(sentences) != 0:
+                        backsens = backsentence.split()
                         
-                        # print(backlist)
+                        # print('len',len(sentence))
+                        # if len(sentence) > 0:
+                        #     removebacksen = sentence[len(sentence)-1]
+                        #     removebacksen = removebacksen.split()
+                        #     # print(removebacksen[len(removebacksen)-2])
+                        #     removebacksen = removebacksen[len(removebacksen)-2]
+                        #     removeback = removebacksen.replace('style="color:red">','')
+                        #     removeback = removeback.replace('</span>','')
+                        #     # for re in removebacksen:
+                        #     #     print(re)
+                        #     #     if re != ' ':
+                        #     #         removeback = re.replace('<span','')
+                        #     #         removeback = removeback.replace('style="color:red">','')
+                        #     #         removeback = removeback.replace('</span>','')
+                        #     #         removeback = removeback.replace('</br>','')
+                            
+                        # else:
+                        #     if len(backsens) != 0:
+                        #         if len(backsens) > 1:
+                        #             removeback = backsens[1]
+                        #         else:
+                        #             removeback = backsens[0]
+                        # print(removeback)   
                         if s not in sentences:
                             # print(s)
                             arr =frontsentence.split()
@@ -799,7 +831,7 @@ def checkkeyword():
                             # frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
                             s = frontsentence + middle + " " +backk +'</br>'
                             
-                            backsens = backsentence.split()
+                            
                             
                             # print(backsens)
                             # print(len(backsens),backsens)
@@ -807,6 +839,7 @@ def checkkeyword():
                                     # if frontsentence != bac and mi != bac and backsentence != bac:
                             # sentence.append(s)
                             status = 0
+                            print(sentence)
                             if len(sentence) > 0:
                                 # print('removeback',removeback)
                                 fo = frontsentence.replace('<span style="color:red">','')
@@ -814,33 +847,265 @@ def checkkeyword():
                                 # print('fo',fo)
                                 # print('mid',mi)
                                 # print('backsentence',backsentence)
-                               
                                 liststr = fo + ' '+mi+' '+backsentence
+                                print('liststr',liststr)
                                 arrstr = liststr.split(" ")
                                 arrstr = [x for x in arrstr if x]
-                                print('arrstr',arrstr)
-                                print('removeback',removeback)
-                                
+                                # print('arrstr',arrstr)
+                                # print('removeback',removeback)
+                                # print('a',a)
                                 for a in arrstr:
-                                     if a == removeback:
+                                     if a == removeback or a in removeback:
                                         status = 1
                                 # print(status)   
                                 if status == 0 :
                                     sentence.append(s)
+                                    if len(backsens) != 0:
+                                        if len(backsens) > 1:
+                                            removeback = backsens[1]
+                                        else:
+                                            removeback = backsens[0]
                                 # if removeback != '' and (removeback not in fo or removeback not in mi or removeback not in backsentence):
                                     
                                 #     sentence.append(s)
                                         
                             else:
                                 sentence.append(s)
-                            if len(backsens) != 0:
-                                if len(backsens) > 1:
-                                    removeback = backsens[1]
-                                else:
-                                    removeback = backsens[0]
+                                if len(backsens) != 0:
+                                        if len(backsens) > 1:
+                                            removeback = backsens[1]
+                                        else:
+                                            removeback = backsens[0]
+                           
                         
     return sentence
 
+# @app.route('/checkkeyword')
+# def checkkeyword():
+#     name = request.args.get('name')
+#     # name = name.replace(' ', '')
+#     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
+   
+#     keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+#     keyword_dicts = keyword_dicts.text
+#     keyword_dicts = json.loads(keyword_dicts)
+#     keyword_dicts = np.asarray(keyword_dicts)
+    
+#     array_keyword = []
+#     for restaurant in keyword_dicts:
+#         array_keyword.append(restaurant['name'])
+        
+#     setting = requests.get('http://localhost:8081/api/token_setting')
+#     setting = setting.text
+#     setting = json.loads(setting)
+#     setting = np.asarray(setting)
+#     setting_front = int(setting[0]["front_space"])
+#     setting_back = int(setting[0]["back_space"])
+        
+#     array_desc = tokenlist(name)
+    
+#     arr_data = []
+#     spllist = []
+    
+    
+#     idx = {x:i for i,x in enumerate(array_desc)}  
+#     tt = [idx[x] for x in array_keyword if x in idx]  
+#     tt.sort()
+#     new_list = []
+#     for word in tt:
+#         if word not in new_list:
+#             new_list.append(word) 
+            
+        
+#     descindex = len(array_desc)
+#     i = new_list[0]
+#     # print('descindex',descindex)
+#     # print('currentindex',new_list[0]) 
+#     currentindex = new_list[0]+1
+#     while i < descindex:
+#         # print('i',i)
+#         # print('currentindex',currentindex)
+#         currentindex = i+1
+#         if i <= currentindex and i in new_list:
+#             backward = findbackward(array_desc,i,setting_front)
+#             # if backward < currentindex and i!= new_list[0]:
+#             #     b = currentindex
+#             #     while b < descindex:
+#             #         backward = findbackward(array_desc,b,setting_front)
+#             #         if backward > currentindex:
+#             #             b = backward
+#             #             i = backward
+#             #             currentindex = backward
+#             #             print(backward)
+#             #         b+=1
+                        
+                
+#             print('array_desc',array_desc[i])
+#             print('backward',backward)
+#             print('backward',array_desc[backward:i])
+            
+#             forward = findforward(array_desc,i,setting_back)
+#             print('forward',forward)
+#             print('forward',array_desc[i:forward])
+            
+#             back = array_desc[backward:i]
+            
+#             forw = array_desc[i:forward]
+#             # print('back',back)
+            
+#             backw = ' '.join(back)
+#             forwo = ' '.join(forw)
+            
+            
+#             sentent = backw+forwo
+#             # for mid in array_keyword:
+#             #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+#             for mid in array_keyword:
+#                 sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+                
+#             arr_data.append(sentent)
+#             currentindex = forward
+                
+#             print('len(array_desc)',len(array_desc))
+#             print('backward',backward)
+#             print('forward',forward)
+#         i=currentindex
+        
+#     # for id in new_list:
+#     #     print(currentindex,' ',id)
+#     #     t = id
+#     #     if currentindex > id or currentindex != 0:
+#     #         i = currentindex+1
+#     #         t = 0
+#     #         while i < (len(array_desc)):
+#     #             print(array_desc[i+1])
+#     #             if array_desc[i+1] != ' ':
+#     #                 t = i+1
+#     #                 break
+#     #             i+=1
+#     #             print(i)
+#     #         print(t,'t')
+
+#     #     id = t       
+#     #     print(array_desc[t],'t')
+#     #     strb = ''
+        
+#     #     print('currentindex',currentindex)
+#     #     # for b in back:
+#     #     #     if b == array_desc[currentindex-1]:
+#     #     #         strba = b
+#     #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
+#     #     #     else:
+#     #     #         strb += b
+                
+#     #     # print(strb)
+        
+#     #     backward = findbackward(array_desc,id,setting_front)
+#     #     print(backward)
+#     #     print('array_desc',array_desc[backward])
+#     #     # print('backward',array_desc[backward:id])
+        
+#     #     forward = findforward(array_desc,id,setting_back)
+#     #     # print('forward',forward)
+#     #     # print('forward',array_desc[id:forward])
+        
+#     #     back = array_desc[backward:id]
+        
+#     #     forw = array_desc[id:forward]
+#     #     # print('back',back)
+        
+#     #     backw = ' '.join(back)
+#     #     forwo = ' '.join(forw)
+        
+        
+#     #     sentent = backw+forwo
+#     #     # for mid in array_keyword:
+#     #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+        
+#     #     arr_data.append(sentent)
+#     #     currentindex = forward
+            
+#     #     print('len(array_desc)',len(array_desc))
+#     #     print('backward',backward)
+#     #     print('forward',forward)
+#                     # print('arr_list',arr_data)  
+                    
+#     return arr_data
+
+def findbackward(array,index,setting):
+    # print('findbackward',index)
+    bc = 0
+    mb = 1
+    # print(bc)
+    while bc < setting:
+        # print(bc)
+        cb = index-mb
+        # print('findbackward',array[cb-2])
+        if cb-setting < len(array):
+            if array[cb-setting] == ' ' or array[cb-setting] == '  ':
+                bc = bc+ 1
+            # print(bc)
+            # break;
+        
+        else:
+            bc = bc + 1
+        mb = mb+1
+        
+    return cb+1
+
+def findforward(array,index,setting):
+    # print('findforward',index)
+    bc = 0
+    mb = 1
+    # print(bc)
+    while bc < setting:
+        # print(bc)
+        cb = index+mb
+        # print('findforward',len(array))
+        if cb+setting < len(array):
+            # print(array[cb+3])
+            if array[cb+setting] == ' ' or array[cb+setting] == '  ':
+                bc = bc + 1
+                
+                # print(bc)
+                # break;
+        else:
+            bc = bc + 1
+        mb = mb+1
+        
+        # print('findforward',array[cb+1])
+    return cb+1
+      
+def tokenlist(name):
+    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    dicts = x.text
+    dicts = json.loads(dicts)
+    words = set(thai_words())  # thai_words() returns frozenset
+    my_array = np.asarray(dicts)
+    
+    for restaurant in my_array:
+        # print (restaurant['name'])
+        value = restaurant['name']
+        words.add(value) 
+    
+    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = keyword_dicts.text
+    keyword_dicts = json.loads(keyword_dicts)
+    keyword_dicts = np.asarray(keyword_dicts)
+    
+    array_keyword = []
+    for restaurant in keyword_dicts:
+        array_keyword.append(restaurant['name'])
+        words.add(restaurant['name']) 
+        
+    custom_tokenizer = Tokenizer(words)
+    name_result = custom_tokenizer.word_tokenize(name)
+    
+    array_desc = []
+    for n in name_result:
+        array_desc.append(n)
+        
+    return array_desc
 
 def Repeat(x):
     _size = len(x)
