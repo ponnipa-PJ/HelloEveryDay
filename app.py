@@ -338,54 +338,54 @@ def tokenkeyword():
     return str(name_word)
 
 
-@app.route('/matchname')
-def matchname():
-    category = [request.args.get('category')]
-    name = request.args.get('name')
-    name_real = request.args.get('name_real')
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
-    dicts = x.text
-    dicts = json.loads(dicts)
-    words = set(thai_words())  # thai_words() returns frozenset
-    my_array = np.asarray(dicts)
-    for restaurant in my_array:
-        # print (restaurant['name'])
-        value = restaurant['name']
-        words.add(value) 
-    # print(words)
-    custom_tokenizer = Tokenizer(words)
-    name_result = custom_tokenizer.word_tokenize(name)
-    # print(name_result)
-    # print(type(name_result))
-    namereal_result = custom_tokenizer.word_tokenize(name_real)
-    name_match = []
-    name_list = ''
-    for name_word in namereal_result:
-        if name_word != ' ':
-            if any(word.startswith(name_word) for word in name_result):
-                # print(name_word)
-                name_match.append(name_word)
-    # print(name_result)
-    # print(name_match)
-    listfull = []
-    for item in name_result:
-        na = ''
-        if item != ' ' and item != '(' and item != ')' and item != 'ผล':
-            if any(word.startswith(item) for word in name_match):
-                # print('list',listfull)
-                if item not in listfull and len(item) > 1:
-                    # print(item)
-                    listfull.append(item)
-                    na = '<span style="color:red">'+item+'</span>&nbsp; '
-                    # na = item
-        name_list += na
+# @app.route('/matchname')
+# def matchname():
+#     category = [request.args.get('category')]
+#     name = request.args.get('name')
+#     name_real = request.args.get('name_real')
+#     x = requests.get('http://localhost:8081/api/dicts?status=1')
+#     dicts = x.text
+#     dicts = json.loads(dicts)
+#     words = set(thai_words())  # thai_words() returns frozenset
+#     my_array = np.asarray(dicts)
+#     for restaurant in my_array:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+#     # print(words)
+#     custom_tokenizer = Tokenizer(words)
+#     name_result = custom_tokenizer.word_tokenize(name)
+#     # print(name_result)
+#     # print(type(name_result))
+#     namereal_result = custom_tokenizer.word_tokenize(name_real)
+#     name_match = []
+#     name_list = ''
+#     for name_word in namereal_result:
+#         if name_word != ' ':
+#             if any(word.startswith(name_word) for word in name_result):
+#                 # print(name_word)
+#                 name_match.append(name_word)
+#     # print(name_result)
+#     # print(name_match)
+#     listfull = []
+#     for item in name_result:
+#         na = ''
+#         if item != ' ' and item != '(' and item != ')' and item != 'ผล':
+#             if any(word.startswith(item) for word in name_match):
+#                 # print('list',listfull)
+#                 if item not in listfull and len(item) > 1:
+#                     # print(item)
+#                     listfull.append(item)
+#                     na = '<span style="color:red">'+item+'</span>&nbsp; '
+#                     # na = item
+#         name_list += na
         
     
-    # print(listfull)
-    res = [*set(listfull)]
-    listToStr = ' '.join([str(elem) for elem in res])
-    listToStr.replace('ผล','')
-    return str(name_list)
+#     # print(listfull)
+#     res = [*set(listfull)]
+#     listToStr = ' '.join([str(elem) for elem in res])
+#     listToStr.replace('ผล','')
+#     return str(name_list)
 
 # @app.route('/checkkeyword')
 # def checkkeyword():
@@ -644,393 +644,639 @@ def matchname():
     
 #     return sentence
 
-@app.route('/checkkeyword')
-def checkkeyword():
+def listToString(s):
+     
+    # initialize an empty string
+    str1 = " "
+ 
+    # return string
+    return (str1.join(s))
+
+@app.route('/matchname')
+def matchname():  
     name = request.args.get('name')
+    name_real = request.args.get('name_real')
     # name = name.replace(' ', '')
     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
-    dicts = x.text
-    dicts = json.loads(dicts)
-    words = set(thai_words())  # thai_words() returns frozenset
-    my_array = np.asarray(dicts)
-    
-    for restaurant in my_array:
-        # print (restaurant['name'])
-        value = restaurant['name']
-        words.add(value) 
-    
+   
     keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
     keyword_dicts = np.asarray(keyword_dicts)
     
+    array_keyword = []
+    for restaurant in keyword_dicts:
+        array_keyword.append(restaurant['name'])
+        
     setting = requests.get('http://localhost:8081/api/token_setting')
     setting = setting.text
     setting = json.loads(setting)
     setting = np.asarray(setting)
     setting_front = int(setting[0]["front_space"])
     setting_back = int(setting[0]["back_space"])
-    
-    k = ''
-    key = []
-    for restaurant in keyword_dicts:
-        # print (restaurant['name'])
-        value = restaurant['name']
-        k+=restaurant['name']
-        key.append(restaurant['name'])
-        words.add(value) 
-    
-    sentence = []
-    backlist = []
-    alltext = []
-    backsentence = ''
-    frontsentence = ''
-    removeback = ''
-    # print(listfull)
-    for n in range(len(name)):
-        for l in key:
-            for ll in l:
-                # print(ll,'ll')
-                # print(name[n],'n')
-                if name[n] == ll:
-                    # print('name',name[n:n+len(l)])
-                    # print(l)
-                    if l == name[n:n+len(l)]:
-                        # print(l)
-                        # print(name[n:n+len(l)])
-                        front = name[:n+len(l)]
-                        # print('front',front)
-                        frontsplit = front.split(" ")
-                        # print('frontsplit',frontsplit)
-                        last_item = frontsplit[-1]
-                        # print('last_item',last_item)
-                        frontsplit = [x for x in frontsplit if x]
-                        lastnum = int(len(frontsplit))
-                        # frontsentence = frontsplit[lastnum-1]
-                        frontsentence = ''
-                        # print(frontsplit[lastnum-1])
-                        if last_item in frontsplit:
-                            frontsentence += frontsplit[((lastnum-(setting_front+1)))] +' '
+        
+    array_desc = tokenlist(name.upper())
+    array_name_real = tokenlist(name_real.upper())
+    # array_desc = name.upper().split()
+    # array_name_real = name_real.upper().split()
+    arr_data = ''
+    spllist = []
+    # print('array_desc',array_desc)
+    # print('array_name_real',array_name_real)
+    name_match = []
+    for name_word in array_desc:
+        if name_word != ' ':
+            if any(word.startswith(name_word) for word in array_name_real):
+                # print(name_word)
+                if len(name_word) >1:
+                    name_match.append(name_word)
+    # print('name_match',name_match)
+                   
+    idx = {x:i for i,x in enumerate(array_desc)}  
+    tt = [idx[x] for x in name_match if x in idx]
+            
+         
+    tt.sort()
+    new_list = []
+    for word in tt:
+        if word not in new_list:
+            new_list.append(word) 
+            
+    descindex = len(array_desc)
+    i = new_list[0]
+    # print('descindex',descindex)
+    # print('currentindex',new_list[0]) 
+    currentindex = new_list[0]+1
+    while i < descindex:
+        # print('i',i)
+        # print('currentindex',currentindex)
+        currentindex = i+1
+        if i <= currentindex and i in new_list:
+            backward = findbackward(array_desc,i,2)
+            # if backward < currentindex and i!= new_list[0]:
+            #     b = currentindex
+            #     while b < descindex:
+            #         backward = findbackward(array_desc,b,setting_front)
+            #         if backward > currentindex:
+            #             b = backward
+            #             i = backward
+            #             currentindex = backward
+            #             print(backward)
+            #         b+=1
                         
-                        for fr in range(setting_front):
-                            frontsentence += frontsplit[((lastnum-setting_front)+(fr))] +' '
-                            
-                        # print('frontsentence',frontsentence)
-                        back = name[n+len(l):]
-                        backsplit = back.split(" ")
-                        backsentence =''
-                        # print('back',back)
-                        # print('backsplit',backsplit)
-                        # print(len(backsplit))
-                        
-                        if len(backsplit) == 2:
-                            backsentence = backsplit[1]
-                        elif len(backsplit) == 1:
-                            backsentence = ''
-                        else:
-                            for sett in range(setting_back):
-                                # print('splir',sett+1, len(backsplit))
-                                # print(backsplit[sett+1])
-                                if sett+1 < len(backsplit):
-                                    backsentence += backsplit[sett+1] +" "
+                
+            # print('array_desc',array_desc[i])
+            # print('backward',backward)
+            # print('backward',array_desc[backward:i])
+            
+            forward = findforward(array_desc,i,3)
+            # print('forward',forward)
+            # print('forward',array_desc[i:forward])
+            
+            back = array_desc[backward:i]
+            
+            forw = array_desc[i:forward]
+            # print('back',back)
+            
+            backw = ''.join(back)
+            forwo = ''.join(forw)
+            
+            
+            sentent = backw+forwo
+            # for mid in array_keyword:
+            #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+            for mid in name_match:
+                sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+                
+            arr_data += sentent +'</br>'
+            currentindex = forward
+                
+            # print('len(array_desc)',len(array_desc))
+            # print('backward',backward)
+            # print('forward',forward)
+        i=currentindex
+        
+    # for id in new_list:
+    #     print(currentindex,' ',id)
+    #     t = id
+    #     if currentindex > id or currentindex != 0:
+    #         i = currentindex+1
+    #         t = 0
+    #         while i < (len(array_desc)):
+    #             print(array_desc[i+1])
+    #             if array_desc[i+1] != ' ':
+    #                 t = i+1
+    #                 break
+    #             i+=1
+    #             print(i)
+    #         print(t,'t')
 
-                                    
-                                # backsentence += backsplit[sett+1] +" "
-                                # print(backsentence)
-                            # backsentence = backsplit[1]+ " " +backsplit[2]
-                            
-                        # middlecheck = name[n:n+len(l)]+backsplit[0]
-                        # print('middlecheck',middlecheck)
-                        # print('name[n:n+len(l)]',name[n:n+len(l)])
-                        # if len(middlecheck) == len(name[n:n+len(l)]):
-                            
-                        #     t = frontsplit[-1][:len(frontsplit[-1])-(len(name[n:n+len(l)]))]
-                        #     # print('frontsplit',frontsplit[-1])
-                        #     # print(len(frontsplit[-1])-(n+len(l)))
-                        #     # print('t',t)
-                        #     # print('frontsplit',frontsplit)
-                        #     middle = t +'<span style="color:red">'+name[n:n+len(l)]+'</span>'
-                        #     # frontsentence = frontsplit[-1]
-                        # else:
-                        # print(name[n:n+len(l)])
-                        # if name[n:n+len(l)] in frontsentence:
-                        #     frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
-                        middle = backsplit[0]
-                        mi = middle
-                        # print('name[n:n+len(l)]',name[n:n+len(l)])
-                        # print('frontsentence',frontsentence)
-                        # print('frontsentence',frontsentence)
-                        # print('middle',middle)
-                        # print('backsentence',backsentence)
-                        s = frontsentence + middle + " " +backsentence +'</br>'
-                        # for a in sentence:
-                        
-                            
-                        arrfront = ''
-                        sentences = []
-                        # print(len(sentence))
-                        if len(sentence) != 0:
-                            for se in sentence:
-                                # print(se)
-                                sen = se.replace('<span style="color:red">','')
-                                sen = sen.replace('</span>','')
-                                # print('sen',sen)
-                                sentences.append(sen)
-                                
-                        # print('sentences',sentences)
-                        # if len(sentences) != 0:
-                        backsens = backsentence.split()
-                        
-                        # print('len',len(sentence))
-                        # if len(sentence) > 0:
-                        #     removebacksen = sentence[len(sentence)-1]
-                        #     removebacksen = removebacksen.split()
-                        #     # print(removebacksen[len(removebacksen)-2])
-                        #     removebacksen = removebacksen[len(removebacksen)-2]
-                        #     removeback = removebacksen.replace('style="color:red">','')
-                        #     removeback = removeback.replace('</span>','')
-                        #     # for re in removebacksen:
-                        #     #     print(re)
-                        #     #     if re != ' ':
-                        #     #         removeback = re.replace('<span','')
-                        #     #         removeback = removeback.replace('style="color:red">','')
-                        #     #         removeback = removeback.replace('</span>','')
-                        #     #         removeback = removeback.replace('</br>','')
-                            
-                        # else:
-                        #     if len(backsens) != 0:
-                        #         if len(backsens) > 1:
-                        #             removeback = backsens[1]
-                        #         else:
-                        #             removeback = backsens[0]
-                        # print(removeback)   
-                        if s not in sentences:
-                            # print(s)
-                            arr =frontsentence.split()
-                            last_front = arr[-1]
-                            # print('arr',arr)
-                            # print('last_front',last_front)
-                            for i in range(len(arr)-1):
-                                arrfront += arr[i] + ' '
-                                
-                            bb = last_front.replace(l,'<span style="color:red">'+l+'</span>')
-                            
-                            # print('bb',bb)
-                                
-                            frontsentence = arrfront + bb
-                            # print(middle,'middle')
-                            for mid in key:
-                                middle = middle.replace(mid,'<span style="color:red">'+mid+'</span>')
-                            
-                            backk = backsentence
-                            for kk in key:
-                                    backk = backk.replace(kk,'<span style="color:red">'+kk+'</span>')
-                                
-                            # print(middle,'middle')
-                            # frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
-                            s = frontsentence + middle + " " +backk +'</br>'
-                            
-                            
-                            
-                            # print(backsens)
-                            # print(len(backsens),backsens)
-                            # print(backsens[1])
-                                    # if frontsentence != bac and mi != bac and backsentence != bac:
-                            # sentence.append(s)
-                            status = 0
-                            print(sentence)
-                            if len(sentence) > 0:
-                                # print('removeback',removeback)
-                                fo = frontsentence.replace('<span style="color:red">','')
-                                fo = fo.replace('</span>','')
-                                # print('fo',fo)
-                                # print('mid',mi)
-                                # print('backsentence',backsentence)
-                                liststr = fo + ' '+mi+' '+backsentence
-                                print('liststr',liststr)
-                                arrstr = liststr.split(" ")
-                                arrstr = [x for x in arrstr if x]
-                                # print('arrstr',arrstr)
-                                # print('removeback',removeback)
-                                # print('a',a)
-                                for a in arrstr:
-                                     if a == removeback or a in removeback:
-                                        status = 1
-                                # print(status)   
-                                if status == 0 :
-                                    sentence.append(s)
-                                    if len(backsens) != 0:
-                                        if len(backsens) > 1:
-                                            removeback = backsens[1]
-                                        else:
-                                            removeback = backsens[0]
-                                # if removeback != '' and (removeback not in fo or removeback not in mi or removeback not in backsentence):
-                                    
-                                #     sentence.append(s)
-                                        
-                            else:
-                                sentence.append(s)
-                                if len(backsens) != 0:
-                                        if len(backsens) > 1:
-                                            removeback = backsens[1]
-                                        else:
-                                            removeback = backsens[0]
-                           
-                        
-    return sentence
+    #     id = t       
+    #     print(array_desc[t],'t')
+    #     strb = ''
+        
+    #     print('currentindex',currentindex)
+    #     # for b in back:
+    #     #     if b == array_desc[currentindex-1]:
+    #     #         strba = b
+    #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
+    #     #     else:
+    #     #         strb += b
+                
+    #     # print(strb)
+        
+    #     backward = findbackward(array_desc,id,setting_front)
+    #     print(backward)
+    #     print('array_desc',array_desc[backward])
+    #     # print('backward',array_desc[backward:id])
+        
+    #     forward = findforward(array_desc,id,setting_back)
+    #     # print('forward',forward)
+    #     # print('forward',array_desc[id:forward])
+        
+    #     back = array_desc[backward:id]
+        
+    #     forw = array_desc[id:forward]
+    #     # print('back',back)
+        
+    #     backw = ' '.join(back)
+    #     forwo = ' '.join(forw)
+        
+        
+    #     sentent = backw+forwo
+    #     # for mid in array_keyword:
+    #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+        
+    #     arr_data.append(sentent)
+    #     currentindex = forward
+            
+    #     print('len(array_desc)',len(array_desc))
+    #     print('backward',backward)
+    #     print('forward',forward)
+                    # print('arr_list',arr_data)  
+                    
+    return arr_data
 
-# @app.route('/checkkeyword')
+@app.route('/checkkeyword')
 # def checkkeyword():
 #     name = request.args.get('name')
 #     # name = name.replace(' ', '')
 #     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
-   
+#     x = requests.get('http://localhost:8081/api/dicts?status=1')
+#     dicts = x.text
+#     dicts = json.loads(dicts)
+#     words = set(thai_words())  # thai_words() returns frozenset
+#     my_array = np.asarray(dicts)
+    
+#     for restaurant in my_array:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         words.add(value) 
+    
 #     keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
 #     keyword_dicts = keyword_dicts.text
 #     keyword_dicts = json.loads(keyword_dicts)
 #     keyword_dicts = np.asarray(keyword_dicts)
     
-#     array_keyword = []
-#     for restaurant in keyword_dicts:
-#         array_keyword.append(restaurant['name'])
-        
 #     setting = requests.get('http://localhost:8081/api/token_setting')
 #     setting = setting.text
 #     setting = json.loads(setting)
 #     setting = np.asarray(setting)
 #     setting_front = int(setting[0]["front_space"])
 #     setting_back = int(setting[0]["back_space"])
+    
+#     k = ''
+#     key = []
+#     for restaurant in keyword_dicts:
+#         # print (restaurant['name'])
+#         value = restaurant['name']
+#         k+=restaurant['name']
+#         key.append(restaurant['name'])
+#         words.add(value) 
+    
+#     sentence = []
+#     backlist = []
+#     alltext = []
+#     backsentence = ''
+#     frontsentence = ''
+#     removeback = ''
+#     # print(listfull)
+#     for n in range(len(name)):
+#         for l in key:
+#             for ll in l:
+#                 # print(ll,'ll')
+#                 # print(name[n],'n')
+#                 if name[n] == ll:
+#                     # print('name',name[n:n+len(l)])
+#                     # print(l)
+#                     if l == name[n:n+len(l)]:
+#                         # print(l)
+#                         # print(name[n:n+len(l)])
+#                         front = name[:n+len(l)]
+#                         # print('front',front)
+#                         frontsplit = front.split(" ")
+#                         # print('frontsplit',frontsplit)
+#                         last_item = frontsplit[-1]
+#                         # print('last_item',last_item)
+#                         frontsplit = [x for x in frontsplit if x]
+#                         lastnum = int(len(frontsplit))
+#                         # frontsentence = frontsplit[lastnum-1]
+#                         frontsentence = ''
+#                         # print(frontsplit[lastnum-1])
+#                         if last_item in frontsplit:
+#                             frontsentence += frontsplit[((lastnum-(setting_front+1)))] +' '
+                        
+#                         for fr in range(setting_front):
+#                             frontsentence += frontsplit[((lastnum-setting_front)+(fr))] +' '
+                            
+#                         # print('frontsentence',frontsentence)
+#                         back = name[n+len(l):]
+#                         backsplit = back.split(" ")
+#                         backsentence =''
+#                         # print('back',back)
+#                         # print('backsplit',backsplit)
+#                         # print(len(backsplit))
+                        
+#                         if len(backsplit) == 2:
+#                             backsentence = backsplit[1]
+#                         elif len(backsplit) == 1:
+#                             backsentence = ''
+#                         else:
+#                             for sett in range(setting_back):
+#                                 # print('splir',sett+1, len(backsplit))
+#                                 # print(backsplit[sett+1])
+#                                 if sett+1 < len(backsplit):
+#                                     backsentence += backsplit[sett+1] +" "
+
+                                    
+#                                 # backsentence += backsplit[sett+1] +" "
+#                                 # print(backsentence)
+#                             # backsentence = backsplit[1]+ " " +backsplit[2]
+                            
+#                         # middlecheck = name[n:n+len(l)]+backsplit[0]
+#                         # print('middlecheck',middlecheck)
+#                         # print('name[n:n+len(l)]',name[n:n+len(l)])
+#                         # if len(middlecheck) == len(name[n:n+len(l)]):
+                            
+#                         #     t = frontsplit[-1][:len(frontsplit[-1])-(len(name[n:n+len(l)]))]
+#                         #     # print('frontsplit',frontsplit[-1])
+#                         #     # print(len(frontsplit[-1])-(n+len(l)))
+#                         #     # print('t',t)
+#                         #     # print('frontsplit',frontsplit)
+#                         #     middle = t +'<span style="color:red">'+name[n:n+len(l)]+'</span>'
+#                         #     # frontsentence = frontsplit[-1]
+#                         # else:
+#                         # print(name[n:n+len(l)])
+#                         # if name[n:n+len(l)] in frontsentence:
+#                         #     frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
+#                         middle = backsplit[0]
+#                         mi = middle
+#                         # print('name[n:n+len(l)]',name[n:n+len(l)])
+#                         # print('frontsentence',frontsentence)
+#                         # print('frontsentence',frontsentence)
+#                         # print('middle',middle)
+#                         # print('backsentence',backsentence)
+#                         s = frontsentence + middle + " " +backsentence +'</br>'
+#                         # for a in sentence:
+                        
+                            
+#                         arrfront = ''
+#                         sentences = []
+#                         # print(len(sentence))
+#                         if len(sentence) != 0:
+#                             for se in sentence:
+#                                 # print(se)
+#                                 sen = se.replace('<span style="color:red">','')
+#                                 sen = sen.replace('</span>','')
+#                                 # print('sen',sen)
+#                                 sentences.append(sen)
+                                
+#                         # print('sentences',sentences)
+#                         # if len(sentences) != 0:
+#                         backsens = backsentence.split()
+                        
+#                         # print('len',len(sentence))
+#                         # if len(sentence) > 0:
+#                         #     removebacksen = sentence[len(sentence)-1]
+#                         #     removebacksen = removebacksen.split()
+#                         #     # print(removebacksen[len(removebacksen)-2])
+#                         #     removebacksen = removebacksen[len(removebacksen)-2]
+#                         #     removeback = removebacksen.replace('style="color:red">','')
+#                         #     removeback = removeback.replace('</span>','')
+#                         #     # for re in removebacksen:
+#                         #     #     print(re)
+#                         #     #     if re != ' ':
+#                         #     #         removeback = re.replace('<span','')
+#                         #     #         removeback = removeback.replace('style="color:red">','')
+#                         #     #         removeback = removeback.replace('</span>','')
+#                         #     #         removeback = removeback.replace('</br>','')
+                            
+#                         # else:
+#                         #     if len(backsens) != 0:
+#                         #         if len(backsens) > 1:
+#                         #             removeback = backsens[1]
+#                         #         else:
+#                         #             removeback = backsens[0]
+#                         # print(removeback)   
+#                         if s not in sentences:
+#                             # print(s)
+#                             arr =frontsentence.split()
+#                             last_front = arr[-1]
+#                             # print('arr',arr)
+#                             # print('last_front',last_front)
+#                             for i in range(len(arr)-1):
+#                                 arrfront += arr[i] + ' '
+                                
+#                             bb = last_front.replace(l,'<span style="color:red">'+l+'</span>')
+                            
+#                             # print('bb',bb)
+                                
+#                             frontsentence = arrfront + bb
+#                             # print(middle,'middle')
+#                             for mid in key:
+#                                 middle = middle.replace(mid,'<span style="color:red">'+mid+'</span>')
+                            
+#                             backk = backsentence
+#                             for kk in key:
+#                                     backk = backk.replace(kk,'<span style="color:red">'+kk+'</span>')
+                                
+#                             # print(middle,'middle')
+#                             # frontsentence = frontsentence.replace(name[n:n+len(l)],'<span style="color:red">'+name[n:n+len(l)]+'</span>')
+#                             s = frontsentence + middle + " " +backk +'</br>'
+                            
+                            
+                            
+#                             # print(backsens)
+#                             # print(len(backsens),backsens)
+#                             # print(backsens[1])
+#                                     # if frontsentence != bac and mi != bac and backsentence != bac:
+#                             # sentence.append(s)
+#                             status = 0
+#                             print(sentence)
+#                             if len(sentence) > 0:
+#                                 # print('removeback',removeback)
+#                                 fo = frontsentence.replace('<span style="color:red">','')
+#                                 fo = fo.replace('</span>','')
+#                                 # print('fo',fo)
+#                                 # print('mid',mi)
+#                                 # print('backsentence',backsentence)
+#                                 liststr = fo + ' '+mi+' '+backsentence
+#                                 print('liststr',liststr)
+#                                 arrstr = liststr.split(" ")
+#                                 arrstr = [x for x in arrstr if x]
+#                                 # print('arrstr',arrstr)
+#                                 # print('removeback',removeback)
+#                                 # print('a',a)
+#                                 for a in arrstr:
+#                                      if a == removeback or a in removeback:
+#                                         status = 1
+#                                 # print(status)   
+#                                 if status == 0 :
+#                                     sentence.append(s)
+#                                     if len(backsens) != 0:
+#                                         if len(backsens) > 1:
+#                                             removeback = backsens[1]
+#                                         else:
+#                                             removeback = backsens[0]
+#                                 # if removeback != '' and (removeback not in fo or removeback not in mi or removeback not in backsentence):
+                                    
+#                                 #     sentence.append(s)
+                                        
+#                             else:
+#                                 sentence.append(s)
+#                                 if len(backsens) != 0:
+#                                         if len(backsens) > 1:
+#                                             removeback = backsens[1]
+#                                         else:
+#                                             removeback = backsens[0]
+                           
+                        
+#     return sentence
+
+@app.route('/checkkeyword')
+def checkkeyword():
+    name = request.args.get('name')
+    # name = name.replace(' ', '')
+    # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
+   
+    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = keyword_dicts.text
+    keyword_dicts = json.loads(keyword_dicts)
+    keyword_dicts = np.asarray(keyword_dicts)
+    
+    array_keyword = []
+    for restaurant in keyword_dicts:
+        array_keyword.append(restaurant['name'])
         
-#     array_desc = tokenlist(name)
+    setting = requests.get('http://localhost:8081/api/token_setting')
+    setting = setting.text
+    setting = json.loads(setting)
+    setting = np.asarray(setting)
+    setting_front = int(setting[0]["front_space"])
+    setting_back = int(setting[0]["back_space"])
+    # name ='ไหม้️เพิ่มความชุ่มชื้นให้กับผิว️ลดรอยดำ'
+    array_desc = tokenlist(name)
     
-#     arr_data = []
-#     spllist = []
+    arr_data = []
+    spllist = []
     
     
-#     idx = {x:i for i,x in enumerate(array_desc)}  
-#     tt = [idx[x] for x in array_keyword if x in idx]  
-#     tt.sort()
-#     new_list = []
-#     for word in tt:
-#         if word not in new_list:
-#             new_list.append(word) 
+    idx = {x:i for i,x in enumerate(array_desc)}  
+    idxdata = [] 
+    for i,x in enumerate(array_desc):
+        idxdata.append({'id':i,'x':x})
+    print(idxdata)
+    tt = [idx[x] for x in array_keyword if x in idx]  
+    tt=[]
+    # print('array_keyword',array_keyword)
+    for x in array_keyword:
+        # print('x',x) 
+        for i in idxdata:
+            # print('x',i['x']) 
+            # print('xx',x)
+            if x in str(i['x']) and i['x'] != '':
+                # print(i['x'])
+                tt.append(i['id'])
+    # print(tt)   
+    tt.sort()
+    new_list = []
+    word = ''
+    for word in tt:
+        if word not in new_list:
+            new_list.append(word) 
+    print('new_list',new_list)
+    # print('tt',tt)
+    # print('array_keyword',array_keyword)  
+    descindex = len(array_desc)
+    i = new_list[0]
+    print('array_desc',new_list)
+    # print('currentindex',new_list[0]) 
+    currentindex = new_list[0]
+    # while i < descindex:
+    for i in new_list:
+        # currentindex = i+1
+        print('currentindex',currentindex)
+        print(array_desc[currentindex])
+        if i >= currentindex and i in new_list and array_desc[currentindex] != ' ':
             
-        
-#     descindex = len(array_desc)
-#     i = new_list[0]
-#     # print('descindex',descindex)
-#     # print('currentindex',new_list[0]) 
-#     currentindex = new_list[0]+1
-#     while i < descindex:
-#         # print('i',i)
-#         # print('currentindex',currentindex)
-#         currentindex = i+1
-#         if i <= currentindex and i in new_list:
-#             backward = findbackward(array_desc,i,setting_front)
-#             # if backward < currentindex and i!= new_list[0]:
-#             #     b = currentindex
-#             #     while b < descindex:
-#             #         backward = findbackward(array_desc,b,setting_front)
-#             #         if backward > currentindex:
-#             #             b = backward
-#             #             i = backward
-#             #             currentindex = backward
-#             #             print(backward)
-#             #         b+=1
+            print('i',i)
+            # print('currentindex',currentindex)
+            # print(array_desc[currentindex])
+            backward = findbackward(array_desc,i,setting_front)
+            # if backward < currentindex and i!= new_list[0]:
+            #     b = currentindex
+            #     while b < descindex:
+            #         backward = findbackward(array_desc,b,setting_front)
+            #         if backward > currentindex:
+            #             b = backward
+            #             i = backward
+            #             currentindex = backward
+            #             print(backward)
+            #         b+=1
                         
                 
-#             print('array_desc',array_desc[i])
-#             print('backward',backward)
-#             print('backward',array_desc[backward:i])
+            # print('array_desc',array_desc[i])
+            # print('backward',backward)
+            # print('backward',array_desc[backward:i])
             
-#             forward = findforward(array_desc,i,setting_back)
-#             print('forward',forward)
-#             print('forward',array_desc[i:forward])
+            forward = findforward(array_desc,i,setting_back)
+            # print('forward',forward)
+            # print('forward',array_desc[i:forward])
             
-#             back = array_desc[backward:i]
+            back = array_desc[backward:i]
             
-#             forw = array_desc[i:forward]
-#             # print('back',back)
-            
-#             backw = ' '.join(back)
-#             forwo = ' '.join(forw)
-            
-            
-#             sentent = backw+forwo
-#             # for mid in array_keyword:
-#             #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
-#             for mid in array_keyword:
-#                 sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+            forw = array_desc[i:forward]
+            print('forw',forw)
+            print('back',back)
+            print('test',forw[len(forw)-2])
+            print('back',back[len(back)-1])
                 
-#             arr_data.append(sentent)
-#             currentindex = forward
+            # print(arr_data[len(arr_data-1)])
+            # if len(arr_data) > 0:
+            #     # if back in arr_data[len(arr_data-1)]:
+            #         print('len',len(arr_data))
+            #         print(arr_data[int(len(arr_data))-1])
+            #         print(back)
+            #         if back :
+                        
+            if forw[len(forw)-2] == ' ':
+                forw = array_desc[i:forward-2]
+                currentindex = forward-2
+                i=currentindex+2
+            else:
+                currentindex = forward+1
+                i=currentindex+1
+            print(currentindex)
+            print(i)
+            # f = ''
+            # if forw[len(forw)-1] != ' ' or forw[len(forw)-2] != ' ':
+            #     f = array_desc[forward:len(array_desc)]
+            #     # print(f)
+            #     # print(f.index(' '))
+            #     f = f[0:f.index(' ')]
+            #     # print(f)
+            #     f = ''.join(f)
+            #     # forw = array_desc[i:forward+1]
+            backw = ''.join(back)
+            forwo = ''.join(forw)
+            # print(f)
+            
+            
+            # for mid in array_keyword:
+            #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+            
+            
+            # print(forwo[0],'forwo')
+            print('word',word)
+            print('backw',backw)
+            # f = backw.split(' ')
+            backw = str(backw)
+            backw = backw.replace(str(word),'')
                 
-#             print('len(array_desc)',len(array_desc))
-#             print('backward',backward)
-#             print('forward',forward)
-#         i=currentindex
+            print(backw)
+            # if word in forwo:
+            #     forwo = forwo.replace(word,'')
+            
+            
+            sentent = backw+forwo
+                
+            for mid in array_keyword:
+                sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+                
+            arr_data.append(sentent)
+            
+            word = forw[len(forw)-1]
+            if word == ' ':
+                word = forw[len(forw)-2]
+            print('word',word)
+            # print('len(array_desc)',len(array_desc))
+            # print('backward',backward)
+            # print('forward',forward)
+            
+        else:
+            i = currentindex+1
+            currentindex = currentindex+1
         
-#     # for id in new_list:
-#     #     print(currentindex,' ',id)
-#     #     t = id
-#     #     if currentindex > id or currentindex != 0:
-#     #         i = currentindex+1
-#     #         t = 0
-#     #         while i < (len(array_desc)):
-#     #             print(array_desc[i+1])
-#     #             if array_desc[i+1] != ' ':
-#     #                 t = i+1
-#     #                 break
-#     #             i+=1
-#     #             print(i)
-#     #         print(t,'t')
+    # for id in new_list:
+    #     print(currentindex,' ',id)
+    #     t = id
+    #     if currentindex > id or currentindex != 0:
+    #         i = currentindex+1
+    #         t = 0
+    #         while i < (len(array_desc)):
+    #             print(array_desc[i+1])
+    #             if array_desc[i+1] != ' ':
+    #                 t = i+1
+    #                 break
+    #             i+=1
+    #             print(i)
+    #         print(t,'t')
 
-#     #     id = t       
-#     #     print(array_desc[t],'t')
-#     #     strb = ''
+    #     id = t       
+    #     print(array_desc[t],'t')
+    #     strb = ''
         
-#     #     print('currentindex',currentindex)
-#     #     # for b in back:
-#     #     #     if b == array_desc[currentindex-1]:
-#     #     #         strba = b
-#     #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
-#     #     #     else:
-#     #     #         strb += b
+    #     print('currentindex',currentindex)
+    #     # for b in back:
+    #     #     if b == array_desc[currentindex-1]:
+    #     #         strba = b
+    #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
+    #     #     else:
+    #     #         strb += b
                 
-#     #     # print(strb)
+    #     # print(strb)
         
-#     #     backward = findbackward(array_desc,id,setting_front)
-#     #     print(backward)
-#     #     print('array_desc',array_desc[backward])
-#     #     # print('backward',array_desc[backward:id])
+    #     backward = findbackward(array_desc,id,setting_front)
+    #     print(backward)
+    #     print('array_desc',array_desc[backward])
+    #     # print('backward',array_desc[backward:id])
         
-#     #     forward = findforward(array_desc,id,setting_back)
-#     #     # print('forward',forward)
-#     #     # print('forward',array_desc[id:forward])
+    #     forward = findforward(array_desc,id,setting_back)
+    #     # print('forward',forward)
+    #     # print('forward',array_desc[id:forward])
         
-#     #     back = array_desc[backward:id]
+    #     back = array_desc[backward:id]
         
-#     #     forw = array_desc[id:forward]
-#     #     # print('back',back)
+    #     forw = array_desc[id:forward]
+    #     # print('back',back)
         
-#     #     backw = ' '.join(back)
-#     #     forwo = ' '.join(forw)
+    #     backw = ' '.join(back)
+    #     forwo = ' '.join(forw)
         
         
-#     #     sentent = backw+forwo
-#     #     # for mid in array_keyword:
-#     #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
+    #     sentent = backw+forwo
+    #     # for mid in array_keyword:
+    #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
         
-#     #     arr_data.append(sentent)
-#     #     currentindex = forward
+    #     arr_data.append(sentent)
+    #     currentindex = forward
             
-#     #     print('len(array_desc)',len(array_desc))
-#     #     print('backward',backward)
-#     #     print('forward',forward)
-#                     # print('arr_list',arr_data)  
+    #     print('len(array_desc)',len(array_desc))
+    #     print('backward',backward)
+    #     print('forward',forward)
+                    # print('arr_list',arr_data)  
                     
-#     return arr_data
+    return arr_data
 
 def findbackward(array,index,setting):
     # print('findbackward',index)
@@ -1042,7 +1288,7 @@ def findbackward(array,index,setting):
         cb = index-mb
         # print('findbackward',array[cb-2])
         if cb-setting < len(array):
-            if array[cb-setting] == ' ' or array[cb-setting] == '  ':
+            if array[cb-setting] == ' ':
                 bc = bc+ 1
             # print(bc)
             # break;
@@ -1064,7 +1310,7 @@ def findforward(array,index,setting):
         # print('findforward',len(array))
         if cb+setting < len(array):
             # print(array[cb+3])
-            if array[cb+setting] == ' ' or array[cb+setting] == '  ':
+            if array[cb+setting] == ' ':
                 bc = bc + 1
                 
                 # print(bc)
@@ -1072,7 +1318,6 @@ def findforward(array,index,setting):
         else:
             bc = bc + 1
         mb = mb+1
-        
         # print('findforward',array[cb+1])
     return cb+1
       
