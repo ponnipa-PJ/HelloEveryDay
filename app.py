@@ -1074,7 +1074,7 @@ def checkkeyword():
     setting = np.asarray(setting)
     setting_front = int(setting[0]["front_space"])
     setting_back = int(setting[0]["back_space"])
-    # name ='ไหม้️เพิ่มความชุ่มชื้นให้กับผิว️ลดรอยดำ'
+    # name ='รายละเอียดสินค้ามัลติวิตพลัส อาหารเสริมเพิ่มน้ำหนัก สูตรใหม่ 2021 ล่าสุดMulti Vit Plus X10 สูตรพัฒนาใหม่ล่าสุดปรับปรุงจากสูตรเดิมให้ดีกว่า อย. 11-1-14859-5-0014แถมฟรี ตัวช่วยดูดซึมสารอาหาร 1'
     array_desc = tokenlist(name)
     
     arr_data = []
@@ -1085,7 +1085,7 @@ def checkkeyword():
     idxdata = [] 
     for i,x in enumerate(array_desc):
         idxdata.append({'id':i,'x':x})
-    print(idxdata)
+    # print(idxdata)
     tt = [idx[x] for x in array_keyword if x in idx]  
     tt=[]
     # print('array_keyword',array_keyword)
@@ -1104,22 +1104,25 @@ def checkkeyword():
     for word in tt:
         if word not in new_list:
             new_list.append(word) 
-    print('new_list',new_list)
+    
     # print('tt',tt)
     # print('array_keyword',array_keyword)  
-    descindex = len(array_desc)
+    descindex = new_list[len(new_list)-1]
+    # print(descindex)
     i = new_list[0]
-    print('array_desc',new_list)
+    # print('idxdata',idxdata)
     # print('currentindex',new_list[0]) 
     currentindex = new_list[0]
     # while i < descindex:
     for i in new_list:
         # currentindex = i+1
-        print('currentindex',currentindex)
-        print(array_desc[currentindex])
-        if i >= currentindex and i in new_list and array_desc[currentindex] != ' ':
+        # print('i',i)
+        # print('currentindex',currentindex)
+        # print(array_desc[currentindex])
+        # print('new_list',new_list)
+        if i >= currentindex and i in new_list and array_desc[i] != ' ' and currentindex<=descindex:
             
-            print('i',i)
+            # print('i',i)
             # print('currentindex',currentindex)
             # print(array_desc[currentindex])
             backward = findbackward(array_desc,i,setting_front)
@@ -1146,10 +1149,10 @@ def checkkeyword():
             back = array_desc[backward:i]
             
             forw = array_desc[i:forward]
-            print('forw',forw)
-            print('back',back)
-            print('test',forw[len(forw)-2])
-            print('back',back[len(back)-1])
+            # print('back',back)
+            # print('forw',forw)
+            # print('test',forw[len(forw)-2])
+            # print('back',back[len(back)-1])
                 
             # print(arr_data[len(arr_data-1)])
             # if len(arr_data) > 0:
@@ -1159,15 +1162,17 @@ def checkkeyword():
             #         print(back)
             #         if back :
                         
-            if forw[len(forw)-2] == ' ':
-                forw = array_desc[i:forward-2]
-                currentindex = forward-2
-                i=currentindex+2
-            else:
-                currentindex = forward+1
-                i=currentindex+1
-            print(currentindex)
-            print(i)
+            # if forw[len(forw)-2] == ' ':
+            #     forw = array_desc[i:forward-2]
+            #     currentindex = forward-2
+            #     i=currentindex+2
+            # else:
+            #     currentindex = forward+1
+            #     i=currentindex+1
+            currentindex = forward-1
+            i=currentindex+1
+            # print(currentindex)
+            # print(i)
             # f = ''
             # if forw[len(forw)-1] != ' ' or forw[len(forw)-2] != ' ':
             #     f = array_desc[forward:len(array_desc)]
@@ -1177,45 +1182,48 @@ def checkkeyword():
             #     # print(f)
             #     f = ''.join(f)
             #     # forw = array_desc[i:forward+1]
+            
+            max_size = len(forw)
+            last_index = max_size -1
+            # print('len',forw[len(forw)-1])
+            if forw[len(forw)-1] == ' ':
+                forw.pop(last_index)
+            # print('forw',forw)
+            
             backw = ''.join(back)
             forwo = ''.join(forw)
             # print(f)
-            
-            
-            # for mid in array_keyword:
-            #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
-            
-            
-            # print(forwo[0],'forwo')
-            print('word',word)
-            print('backw',backw)
-            # f = backw.split(' ')
-            backw = str(backw)
-            backw = backw.replace(str(word),'')
-                
-            print(backw)
-            # if word in forwo:
-            #     forwo = forwo.replace(word,'')
-            
-            
             sentent = backw+forwo
-                
-            for mid in array_keyword:
-                sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
-                
-            arr_data.append(sentent)
             
-            word = forw[len(forw)-1]
-            if word == ' ':
-                word = forw[len(forw)-2]
-            print('word',word)
+            
+            sw = ''
+            sen = sentent.split(' ')  
+            for s in sen:
+                if word != s:
+                    sw += s +'  '
+            # print(sw)
+            
+                
+            # print('word',word)
+            for mid in array_keyword:
+                sw = sw.replace(mid,'<span style="color:red">'+mid+'</span>')
+                
+            arr_data.append(sw)
+            word = sen[len(sen)-1]
+            # ws = sw.split(' ')  
+            # print(ws)  
+            # word = ws[len(ws)-1]
+            # print(word)
+            # if word == '':
+            #     word = ws[len(ws)-1]
             # print('len(array_desc)',len(array_desc))
             # print('backward',backward)
             # print('forward',forward)
             
+            # print('word',word)
         else:
-            i = currentindex+1
-            currentindex = currentindex+1
+            i = i+1
+            # currentindex = currentindex+1
         
     # for id in new_list:
     #     print(currentindex,' ',id)
@@ -1279,25 +1287,43 @@ def checkkeyword():
     return arr_data
 
 def findbackward(array,index,setting):
-    # print('findbackward',index)
     bc = 0
     mb = 1
-    # print(bc)
     while bc < setting:
-        # print(bc)
         cb = index-mb
-        # print('findbackward',array[cb-2])
-        if cb-setting < len(array):
-            if array[cb-setting] == ' ':
+        # print(cb)
+        if cb < len(array):
+            # print(array[cb])
+            if array[cb] == ' ':
                 bc = bc+ 1
-            # print(bc)
-            # break;
-        
-        else:
-            bc = bc + 1
+            if cb == 0:
+                bc = bc+ 1
         mb = mb+1
+        # print('cb',cb)    
+    return cb
+
+# def findbackward(array,index,setting):
+#     # print('findbackward',index)
+#     bc = 0
+#     mb = 1
+#     # print(bc)
+#     while bc < setting:
+#         # print(bc)
+#         cb = index-mb
+#         # print('findbackward',array[cb-2])
+#         if cb-setting < len(array):
+#             print(cb-setting)
+#             if array[cb-setting] == ' ':
+#                 bc = bc+ 1
+#             # print(bc)
+#             # break;
         
-    return cb+1
+#         else:
+#             bc = bc + 1
+#         mb = mb+1
+        
+#     return cb+1
+
 
 def findforward(array,index,setting):
     # print('findforward',index)
@@ -1307,12 +1333,12 @@ def findforward(array,index,setting):
     while bc < setting:
         # print(bc)
         cb = index+mb
-        # print('findforward',len(array))
-        if cb+setting < len(array):
+        # print('cb',cb)
+        if cb < len(array):
             # print(array[cb+3])
-            if array[cb+setting] == ' ':
+            if array[cb] == ' ':
                 bc = bc + 1
-                
+                # 171
                 # print(bc)
                 # break;
         else:
