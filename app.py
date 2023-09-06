@@ -18,8 +18,8 @@ import json
 # from ocrmac import ocrmac
     
 app = Flask(__name__)
-cors = CORS(app,resources={r"/*": {"origins": "http://localhost:8082"}})
-
+cors = CORS(app,resources={r"/*": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type'
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
@@ -259,7 +259,7 @@ def worktoken():
 #     return str(Str)
 
 @app.route('/worktokendesc', methods=["GET"])
-@cross_origin()
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def worktokendesc():
     name = request.args.get('text')
     # name = name.replace(' ', '')
