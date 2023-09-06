@@ -18,7 +18,7 @@ import json
 # from ocrmac import ocrmac
     
 app = Flask(__name__)
-cors = CORS(app,supports_credentials=True)
+cors = CORS(app,resources={r"/*": {"origins": "http://localhost:8082"}})
 
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
