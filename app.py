@@ -24,7 +24,10 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
-pathbackend = requests.get('http://localhost:8081/api/database_path')
+# pathbackend = requests.get('http://localhost:8081/api/database_path')
+pathnodejs = 'https://api-fda.ponnipa.in.th'
+pathbackend = requests.get('https://api-fda.ponnipa.in.th/api/database_path')
+
 # url = data.backend_path
 backend_path = json.loads(pathbackend.text)
 backend_path = backend_path["backend_path"]
@@ -79,7 +82,7 @@ def worktoken():
     text = text.replace(' ', '')
     namereal_result = request.args.get('namereal_result')
     # print(namereal_result)
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    x = requests.get(pathnodejs+'/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
     words = set(thai_words())  # thai_words() returns frozenset
@@ -88,7 +91,7 @@ def worktoken():
         # print (restaurant['name'])
         value = restaurant['name']
         words.add(value) 
-    cat = requests.get('http://localhost:8081/api/fdatypes')
+    cat = requests.get(pathnodejs+'/api/fdatypes')
     cats = cat.text
     cats = json.loads(cats)
     my_array_cat = np.asarray(cats)
@@ -260,7 +263,7 @@ def worktokendesc():
     name = request.args.get('text')
     # name = name.replace(' ', '')
     # name = 'หรือหลังอาหารมื้อแรก ถ้ายังรู้สึกหิวปรับทาน 2 แคปซูล หลังอาหารมื้อแรกของวัน'
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    x = requests.get(pathnodejs+'/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
     words = set(thai_words())  # thai_words() returns frozenset
@@ -271,7 +274,7 @@ def worktokendesc():
         value = restaurant['name']
         words.add(value) 
     
-    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
     keyword_dicts = np.asarray(keyword_dicts)
@@ -659,7 +662,7 @@ def matchname():
     # name = name.replace(' ', '')
     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
    
-    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
     keyword_dicts = np.asarray(keyword_dicts)
@@ -668,7 +671,7 @@ def matchname():
     for restaurant in keyword_dicts:
         array_keyword.append(restaurant['name'])
         
-    setting = requests.get('http://localhost:8081/api/token_setting')
+    setting = requests.get(pathnodejs+'/api/token_setting')
     setting = setting.text
     setting = json.loads(setting)
     setting = np.asarray(setting)
@@ -817,7 +820,7 @@ def matchname():
                     
     return arr_data
 
-@app.route('/checkkeyword')
+# @app.route('/checkkeyword')
 # def checkkeyword():
 #     name = request.args.get('name')
 #     # name = name.replace(' ', '')
@@ -1056,10 +1059,17 @@ def matchname():
 @app.route('/checkkeyword')
 def checkkeyword():
     name = request.args.get('name')
+    start = request.args.get('start')
+    end = request.args.get('end')
     # name = name.replace(' ', '')
     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
    
-    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+   
+    # product_data = requests.get('http://localhost:8081/api/products/getproductkeyword?start=1')
+    # product_data = product_data.text
+    # product_data = json.loads(product_data)
+    # print(product_data)
+    keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
     keyword_dicts = np.asarray(keyword_dicts)
@@ -1068,7 +1078,7 @@ def checkkeyword():
     for restaurant in keyword_dicts:
         array_keyword.append(restaurant['name'])
         
-    setting = requests.get('http://localhost:8081/api/token_setting')
+    setting = requests.get(pathnodejs+'/api/token_setting')
     setting = setting.text
     setting = json.loads(setting)
     setting = np.asarray(setting)
@@ -1076,7 +1086,6 @@ def checkkeyword():
     setting_back = int(setting[0]["back_space"])
     # name ='รายละเอียดสินค้ามัลติวิตพลัส อาหารเสริมเพิ่มน้ำหนัก สูตรใหม่ 2021 ล่าสุดMulti Vit Plus X10 สูตรพัฒนาใหม่ล่าสุดปรับปรุงจากสูตรเดิมให้ดีกว่า อย. 11-1-14859-5-0014แถมฟรี ตัวช่วยดูดซึมสารอาหาร 1'
     array_desc = tokenlist(name)
-    
     arr_data = []
     spllist = []
     
@@ -1088,6 +1097,7 @@ def checkkeyword():
     # print(idxdata)
     tt = [idx[x] for x in array_keyword if x in idx]  
     tt=[]
+    # print(array_desc)
     # print('array_keyword',array_keyword)
     for x in array_keyword:
         # print('x',x) 
@@ -1101,20 +1111,25 @@ def checkkeyword():
     tt.sort()
     new_list = []
     word = ''
-    for word in tt:
-        if word not in new_list:
-            new_list.append(word) 
+    for w in tt:
+        if w not in new_list:
+            new_list.append(w) 
     
-    # print('tt',tt)
+    print('new_list',new_list)
     # print('array_keyword',array_keyword)  
-    descindex = new_list[len(new_list)-1]
-    # print(descindex)
-    i = new_list[0]
+    if len(new_list) == 0:
+        i =0
+        currentindex = 0
+    else:
+        i = new_list[0]
+        currentindex = new_list[0]
     # print('idxdata',idxdata)
     # print('currentindex',new_list[0]) 
-    currentindex = new_list[0]
+    
     # while i < descindex:
     for i in new_list:
+        descindex = new_list[len(new_list)-1]
+        print('descindex',descindex)
         # currentindex = i+1
         # print('i',i)
         # print('currentindex',currentindex)
@@ -1198,18 +1213,55 @@ def checkkeyword():
             
             sw = ''
             sen = sentent.split(' ')  
+            dictarr = []
+            status = 0
+            # print(sen)
+            sen = [x for x in sen if x]
             for s in sen:
+                # print(dictarr)
                 if word != s:
                     sw += s +'  '
             # print(sw)
+            dictstr = []
+            myList = []
+            myList = sw.split()
+            for s in myList:
+                # print(s)
+                s = s.replace("'",'')
+                dictstr = requests.get(pathnodejs+'/api/dicts?name='+s)
+                dictstr = json.loads(dictstr.text)
+                dictstr = np.asarray(dictstr)
+                # print(dictstr)
+                if len(dictstr) > 0:
+                    dictarr.append(int(dictstr[0]["id"]))
+                    
             
-                
-            # print('word',word)
+            # print('myList',myList)
+            sql = str(dictarr).replace(' ','')
+            rule =  "SELECT r.* FROM map_rule_based m join rule_based r on m.rule_based_id = r.id WHERE m.status = 1 and dict_id = "
+            rule+= "'"+sql +"'"
+            # print(rule)
+            rule_based = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+rule)
+            rule_based = json.loads(rule_based.text)
+            rule_based = np.asarray(rule_based)
+            # print(rule_based)
+            if len(rule_based) > 0:
+                status = int(rule_based[0]["answer"])
+                    
             for mid in array_keyword:
                 sw = sw.replace(mid,'<span style="color:red">'+mid+'</span>')
-                
-            arr_data.append(sw)
+            # print('dictarr',dictarr)
+            # print('myList',myList)
+            # print('sw',sw)
+            # print('status',status)
+            arr_data.append({'id':dictarr,
+                             'sen':myList,
+                             'sentent':sw,
+                             'status':status})
+            # print(arr_data)
             word = sen[len(sen)-1]
+            # print(word)
+            # print('arr_data',arr_data)
             # ws = sw.split(' ')  
             # print(ws)  
             # word = ws[len(ws)-1]
@@ -1224,65 +1276,6 @@ def checkkeyword():
         else:
             i = i+1
             # currentindex = currentindex+1
-        
-    # for id in new_list:
-    #     print(currentindex,' ',id)
-    #     t = id
-    #     if currentindex > id or currentindex != 0:
-    #         i = currentindex+1
-    #         t = 0
-    #         while i < (len(array_desc)):
-    #             print(array_desc[i+1])
-    #             if array_desc[i+1] != ' ':
-    #                 t = i+1
-    #                 break
-    #             i+=1
-    #             print(i)
-    #         print(t,'t')
-
-    #     id = t       
-    #     print(array_desc[t],'t')
-    #     strb = ''
-        
-    #     print('currentindex',currentindex)
-    #     # for b in back:
-    #     #     if b == array_desc[currentindex-1]:
-    #     #         strba = b
-    #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
-    #     #     else:
-    #     #         strb += b
-                
-    #     # print(strb)
-        
-    #     backward = findbackward(array_desc,id,setting_front)
-    #     print(backward)
-    #     print('array_desc',array_desc[backward])
-    #     # print('backward',array_desc[backward:id])
-        
-    #     forward = findforward(array_desc,id,setting_back)
-    #     # print('forward',forward)
-    #     # print('forward',array_desc[id:forward])
-        
-    #     back = array_desc[backward:id]
-        
-    #     forw = array_desc[id:forward]
-    #     # print('back',back)
-        
-    #     backw = ' '.join(back)
-    #     forwo = ' '.join(forw)
-        
-        
-    #     sentent = backw+forwo
-    #     # for mid in array_keyword:
-    #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
-        
-    #     arr_data.append(sentent)
-    #     currentindex = forward
-            
-    #     print('len(array_desc)',len(array_desc))
-    #     print('backward',backward)
-    #     print('forward',forward)
-                    # print('arr_list',arr_data)  
                     
     return arr_data
 
@@ -1348,7 +1341,7 @@ def findforward(array,index,setting):
     return cb+1
       
 def tokenlist(name):
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    x = requests.get(pathnodejs+'/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
     words = set(thai_words())  # thai_words() returns frozenset
@@ -1359,7 +1352,7 @@ def tokenlist(name):
         value = restaurant['name']
         words.add(value) 
     
-    keyword_dicts = requests.get('http://localhost:8081/api/keyword_dicts?status=1')
+    keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
     keyword_dicts = np.asarray(keyword_dicts)
@@ -1392,13 +1385,13 @@ def Repeat(x):
 def matchcategory():
     category = request.args.get('category')
     
-    x = requests.get('http://localhost:8081/api/dicts?status=1')
+    x = requests.get(pathnodejs+'/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
     words = set(thai_words())  # thai_words() returns frozenset
     my_array = np.asarray(dicts)
     
-    cat = requests.get('http://localhost:8081/api/fdatypes')
+    cat = requests.get(pathnodejs+'/api/fdatypes')
     cats = cat.text
     cats = json.loads(cats)
     my_array_cat = np.asarray(cats)
