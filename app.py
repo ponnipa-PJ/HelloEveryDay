@@ -36,6 +36,7 @@ def hello():
     return pathnodejs
 
 @app.route('/findedge', methods=["GET"])
+@cross_origin()
 def findedged():
     # path = id+'.jpg'
     path = '10.jpg'
@@ -258,6 +259,7 @@ def worktoken():
 #     return str(Str)
 
 @app.route('/worktokendesc', methods=["GET"])
+@cross_origin()
 def worktokendesc():
     name = request.args.get('text')
     # name = name.replace(' ', '')
