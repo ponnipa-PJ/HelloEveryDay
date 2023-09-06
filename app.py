@@ -34,7 +34,7 @@ backend_path = backend_path["backend_path"]
 
 @app.route('/')
 def hello():
-    return "Welcome To WebService"
+    return pathnodejs
 
 @app.route('/findedge')
 def findedged():
