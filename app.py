@@ -18,11 +18,8 @@ import json
 # from ocrmac import ocrmac
     
 app = Flask(__name__)
-cors = CORS(app,resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-CORS_ALLOW_ORIGIN="*,*"
-CORS_EXPOSE_HEADERS="*,*"
-CORS_ALLOW_HEADERS="content-type,*"
-cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(",") , expose_headers= CORS_EXPOSE_HEADERS.split(","),   supports_credentials = True)
+cors = CORS(app,supports_credentials=True)
+
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
@@ -1558,7 +1555,7 @@ def scrapingheader():
     # print(the_text)
     return the_text
 
-@app.route('/base64', methods=["GET"])
+@app.route('/base64')
 def get_base64():
     id = request.args.get('id')
     # print(id)
