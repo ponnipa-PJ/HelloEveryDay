@@ -19,8 +19,10 @@ import json
     
 app = Flask(__name__)
 cors = CORS(app,resources={r"/*": {"origins": "*"}}, supports_credentials=True)
-app.config['CORS_HEADERS'] = 'Content-Type'
-
+CORS_ALLOW_ORIGIN="*,*"
+CORS_EXPOSE_HEADERS="*,*"
+CORS_ALLOW_HEADERS="content-type,*"
+cors = CORS(app, origins=CORS_ALLOW_ORIGIN.split(","), allow_headers=CORS_ALLOW_HEADERS.split(",") , expose_headers= CORS_EXPOSE_HEADERS.split(","),   supports_credentials = True)
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
