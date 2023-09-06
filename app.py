@@ -36,7 +36,7 @@ backend_path = backend_path["backend_path"]
 def hello():
     return pathnodejs
 
-@app.route('/findedge')
+@app.route('/findedge', methods=["GET"])
 def findedged():
     # path = id+'.jpg'
     path = '10.jpg'
@@ -76,7 +76,7 @@ def findedged():
     # cv2.destroyAllWindows()
     return str(x)+" " +str(y)+" " +str(w)+" " +str(h)
 
-@app.route('/worktoken')
+@app.route('/worktoken', methods=["GET"])
 def worktoken():
     text = request.args.get('text')
     text = text.replace(' ', '')
@@ -258,7 +258,7 @@ def worktoken():
 #     # print(Str)
 #     return str(Str)
 
-@app.route('/worktokendesc')
+@app.route('/worktokendesc', methods=["GET"])
 def worktokendesc():
     name = request.args.get('text')
     # name = name.replace(' ', '')
@@ -318,7 +318,7 @@ def worktokendesc():
     return name
 
 
-@app.route('/tokenkeyword')
+@app.route('/tokenkeyword', methods=["GET"])
 def tokenkeyword():
     text = request.args.get('text')
     
@@ -655,7 +655,7 @@ def listToString(s):
     # return string
     return (str1.join(s))
 
-@app.route('/matchname')
+@app.route('/matchname', methods=["GET"])
 def matchname():  
     name = request.args.get('name')
     name_real = request.args.get('name_real')
@@ -1056,7 +1056,7 @@ def matchname():
                         
 #     return sentence
 
-@app.route('/checkkeyword')
+@app.route('/checkkeyword', methods=["GET"])
 def checkkeyword():
     name = request.args.get('name')
     start = request.args.get('start')
@@ -1381,7 +1381,7 @@ def Repeat(x):
                 repeated += '<span style="color:red">'+x[i]+'</span>&nbsp;'
     return repeated
 
-@app.route('/matchcategory')
+@app.route('/matchcategory', methods=["GET"])
 def matchcategory():
     category = request.args.get('category')
     
@@ -1475,7 +1475,7 @@ def matchcategory():
 #     return str(name_list)
 
 
-@app.route('/scraping')
+@app.route('/scraping', methods=["GET"])
 def scraping():
     id = request.args.get('id')
     path = request.args.get('path')
@@ -1513,7 +1513,7 @@ def scraping():
     # cv2.destroyAllWindows()
     return "success"
 
-@app.route('/scrapingcontent')
+@app.route('/scrapingcontent', methods=["GET"])
 def scrapingcontent():
     # print(backend_path)
     path = request.args.get('path')
@@ -1535,7 +1535,7 @@ def scrapingcontent():
     # print(the_text)
     return the_text
 
-@app.route('/scrapingheader')
+@app.route('/scrapingheader', methods=["GET"])
 def scrapingheader():
     # print(backend_path)
     path = request.args.get('path')
@@ -1556,7 +1556,7 @@ def scrapingheader():
     # print(the_text)
     return the_text
 
-@app.route('/base64')
+@app.route('/base64', methods=["GET"])
 def get_base64():
     id = request.args.get('id')
     # print(id)
