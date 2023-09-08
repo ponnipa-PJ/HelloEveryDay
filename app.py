@@ -23,9 +23,10 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 # annotations = ocrmac.OCR('Cropped2.jpg').recognize()
 # print(annotations)
 # ocrmac.OCR('Cropped3.jpg').annotate_PIL()
-# pathbackend = requests.get('http://localhost:8081/api/database_path')
-pathnodejs = 'https://api-fda.ponnipa.in.th'
-pathbackend = requests.get('https://api-fda.ponnipa.in.th/api/database_path')
+pathbackend = requests.get('http://localhost:8081/api/database_path')
+pathnodejs = 'http://localhost:8081'
+# pathnodejs = 'https://api-fda.ponnipa.in.th'
+# pathbackend = requests.get('https://api-fda.ponnipa.in.th/api/database_path')
 
 # url = data.backend_path
 backend_path = json.loads(pathbackend.text)
@@ -1060,7 +1061,7 @@ def matchname():
 @app.route('/checkkeyword', methods=["GET"])
 def checkkeyword():
     name = request.args.get('name')
-    start = request.args.get('start')
+    id = request.args.get('id')
     end = request.args.get('end')
     # name = name.replace(' ', '')
     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
@@ -1070,6 +1071,13 @@ def checkkeyword():
     # product_data = product_data.text
     # product_data = json.loads(product_data)
     # print(product_data)
+    rulekey = requests.get(pathnodejs+'/api/rule_based_keyword/'+id)
+    # print(pathnodejs+'/api/rule_based_keyword/'+id)
+    rulekey = rulekey.text
+    rulekey = json.loads(rulekey)
+    # rulekey = np.asarray(rulekey)
+    print(len(rulekey))
+    
     keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
     keyword_dicts = json.loads(keyword_dicts)
@@ -1089,9 +1097,32 @@ def checkkeyword():
     array_desc = tokenlist(name)
     arr_data = []
     spllist = []
+    keywordarr = []
     
+    print(array_desc)
+    for k in keyword_dicts:
+        print(k['name'])
+        for des in array_desc:
+            if k['name'] in des:
+                keywordarr.append(k['id'])
+    newkeywordarr = []
+    print('keywordarr',keywordarr)
+    for ke in keywordarr:
+        if ke not in newkeywordarr:
+            newkeywordarr.append(ke) 
+            
     
+    if len(keywordarr) > 0 and len(rulekey) == 0:
+        strkeywordarr = str(newkeywordarr).replace(' ','')
+        k =  "INSERT INTO rule_based_keyword (id, product_id, keyword_id) VALUES (NULL,"
+        k+= "'"+id +"',"
+        k+= "'"+strkeywordarr +"')"
+        # print(k)
+        addrule_based_keyword = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+k)
+        # print(json.loads(addrule_based_keyword.text))
+        
     idx = {x:i for i,x in enumerate(array_desc)}  
+    # print(idx)
     idxdata = [] 
     for i,x in enumerate(array_desc):
         idxdata.append({'id':i,'x':x})
@@ -1112,11 +1143,12 @@ def checkkeyword():
     tt.sort()
     new_list = []
     word = ''
+    k = ''
     for w in tt:
         if w not in new_list:
             new_list.append(w) 
     
-    print('new_list',new_list)
+    # print('new_list',new_list)
     # print('array_keyword',array_keyword)  
     if len(new_list) == 0:
         i =0
@@ -1130,7 +1162,7 @@ def checkkeyword():
     # while i < descindex:
     for i in new_list:
         descindex = new_list[len(new_list)-1]
-        print('descindex',descindex)
+        # print('descindex',descindex)
         # currentindex = i+1
         # print('i',i)
         # print('currentindex',currentindex)
@@ -1259,6 +1291,37 @@ def checkkeyword():
                              'sen':myList,
                              'sentent':sw,
                              'status':status})
+            stradvertise = str(dictarr).replace(' ','')
+            # strmyList = str(myList).replace(' ','')
+            print(myList)
+            Listsen = []
+            for m in myList:
+                Listsen.append({"name":m})
+              
+            # print(Listsen)  
+            # strmyList = str(strmyList).replace("'",'"')
+            # strmyList = str(strmyList).replace('["','[{"name":"')
+            # strmyList = str(strmyList).replace('"]','"}]')
+            # strmyList = str(strmyList).replace(",',","',',")
+            
+            # strmyList = str(strmyList).replace(',','},{"name":')
+            # strmyList = str(strmyList).replace("']",'}]')
+            strmyList = str(Listsen)
+            strmyList = str(strmyList).replace(",'",',"')
+            strmyList = str(strmyList).replace("'",'"')
+            strmyList = str(strmyList).replace('""','"')
+            sw += "')"
+            sw= str(sw).replace("'  '","' ")
+            print(sw)
+            if len(keywordarr) > 0 and len(rulekey) == 0:
+                ad =  "INSERT INTO advertise (id, product_id, dict_id, sen, sentent) VALUES (NULL,"
+                ad+= "'"+id +"',"
+                ad+= "'"+stradvertise +"',"
+                ad+= "'"+strmyList +"',"
+                ad+= "'"+sw +""
+                print(ad)
+                addadvertise = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+ad)
+                # print(json.loads(addadvertise.text))
             # print(arr_data)
             word = sen[len(sen)-1]
             # print(word)
@@ -1385,7 +1448,6 @@ def Repeat(x):
 @app.route('/matchcategory', methods=["GET"])
 def matchcategory():
     category = request.args.get('category')
-    
     x = requests.get(pathnodejs+'/api/dicts?status=1')
     dicts = x.text
     dicts = json.loads(dicts)
