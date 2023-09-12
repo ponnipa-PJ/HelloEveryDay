@@ -1065,8 +1065,12 @@ def checkkeyword():
     end = request.args.get('end')
     # name = name.replace(' ', '')
     # name = 'รายละเอียดสินค้าแท้% Fercy Fiber S เฟอร์ซี่ ไฟเบอร์ เอส Fercy Diet เฟอซี่ไดเอทFercy Diet เฟอร์ซี่ เคล็ดลับหุ่นดี คุมหิว อิ่มนาน น้ำหนักลงง่ายๆ ไม่ต้องอด ช่วยลดความอยากอาหาร ดักจับไขมัน'
-   
-   
+    deleteadvertise = "DELETE FROM advertise WHERE product_id = "+id
+    deleterule_based =  "DELETE FROM rule_based_keyword WHERE product_id = "+id
+    # print(deleterule_based)
+    # print(deleteadvertise)
+    requests.get(pathnodejs+'/api/rule_based/getbydict?name='+deleteadvertise)
+    requests.get(pathnodejs+'/api/rule_based/getbydict?name='+deleterule_based)
     # product_data = requests.get('http://localhost:8081/api/products/getproductkeyword?start=1')
     # product_data = product_data.text
     # product_data = json.loads(product_data)
@@ -1076,7 +1080,7 @@ def checkkeyword():
     rulekey = rulekey.text
     rulekey = json.loads(rulekey)
     # rulekey = np.asarray(rulekey)
-    print(len(rulekey))
+    # print(len(rulekey))
     
     keyword_dicts = requests.get(pathnodejs+'/api/keyword_dicts?status=1')
     keyword_dicts = keyword_dicts.text
@@ -1099,14 +1103,14 @@ def checkkeyword():
     spllist = []
     keywordarr = []
     
-    print(array_desc)
-    for k in keyword_dicts:
-        print(k['name'])
-        for des in array_desc:
+    # print(array_desc)
+    for des in array_desc:
+        # print(k['name'])
+        for k in keyword_dicts:
             if k['name'] in des:
                 keywordarr.append(k['id'])
     newkeywordarr = []
-    print('keywordarr',keywordarr)
+    # print('keywordarr',keywordarr)
     for ke in keywordarr:
         if ke not in newkeywordarr:
             newkeywordarr.append(ke) 
@@ -1271,7 +1275,7 @@ def checkkeyword():
             
             # print('myList',myList)
             sql = str(dictarr).replace(' ','')
-            rule =  "SELECT r.* FROM map_rule_based m join rule_based r on m.rule_based_id = r.id WHERE m.status = 1 and dict_id = "
+            rule =  "SELECT m.* FROM map_rule_based m WHERE m.status = 1 and m.dict_id = "
             rule+= "'"+sql +"'"
             # print(rule)
             rule_based = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+rule)
@@ -1293,7 +1297,7 @@ def checkkeyword():
                              'status':status})
             stradvertise = str(dictarr).replace(' ','')
             # strmyList = str(myList).replace(' ','')
-            print(myList)
+            # print(myList)
             Listsen = []
             for m in myList:
                 Listsen.append({"name":m})
@@ -1312,14 +1316,14 @@ def checkkeyword():
             strmyList = str(strmyList).replace('""','"')
             sw += "')"
             sw= str(sw).replace("'  '","' ")
-            print(sw)
+            # print(sw)
             if len(keywordarr) > 0 and len(rulekey) == 0:
                 ad =  "INSERT INTO advertise (id, product_id, dict_id, sen, sentent) VALUES (NULL,"
                 ad+= "'"+id +"',"
                 ad+= "'"+stradvertise +"',"
                 ad+= "'"+strmyList +"',"
                 ad+= "'"+sw +""
-                print(ad)
+                # print(ad)
                 addadvertise = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+ad)
                 # print(json.loads(addadvertise.text))
             # print(arr_data)
