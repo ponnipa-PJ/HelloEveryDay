@@ -313,8 +313,8 @@ def worktokendesc():
         t = name.replace(k,'<span style="color:red">'+k+'</span>')
         name = t
 
-    print(t)
-    print('name',name)
+    # print(t)
+    # print('name',name)
     # array_desc = tokenlist(name)
     
     return name
@@ -1258,32 +1258,52 @@ def checkkeyword():
                 # print(dictarr)
                 if word != s:
                     sw += s +'  '
-            # print(sw)
+            # print('sw',sw)
+            stradvertisetoken = tokenlist(sw)
+            # print(stradvertisetoken)  
             dictstr = []
             myList = []
             myList = sw.split()
-            for s in myList:
+            arrdictid = []
+            arrdictname = []
+            stradvertisetoken = [x.strip() for x in stradvertisetoken if x.strip()]
+            stradvertisetoken = [x for x in stradvertisetoken if x != '']
+            # print(stradvertisetoken)
+            for s in stradvertisetoken:
                 # print(s)
-                s = s.replace("'",'')
-                dictstr = requests.get(pathnodejs+'/api/dicts?name='+s)
-                dictstr = json.loads(dictstr.text)
-                dictstr = np.asarray(dictstr)
-                # print(dictstr)
-                if len(dictstr) > 0:
-                    dictarr.append(int(dictstr[0]["id"]))
+                if s != '  ' and s != "," and s != ' ' and s != ":" and s != '' and s != "[" and s != "]" and s != '️' and s != '"' and s !="'":
+                    # print('s',s,len(s))
+                    dictstr = requests.get(pathnodejs+'/api/dicts?name='+s)
+                    dictstr = json.loads(dictstr.text)
+                    dictstr = np.asarray(dictstr)
+                    print(dictstr)
+                    if len(dictstr) > 0:
+                        dictarr.append(int(dictstr[0]["id"]))
+                        arrdictid.append(int(dictstr[0]["id"]))
+                        arrdictname.append(s)
+                    else:
+                        indict =  "INSERT INTO dicts (id, name, status) VALUES (NULL,"
+                        indict+= "'"+s +"',"
+                        indict+= "'"+str(1) +"')"
+                        # print(indict)
+                        indictsql = requests.get(pathnodejs+'/api/dicts/createddicttoken?name='+ indict)
+                        indictsql = json.loads(indictsql.text)
+                        arrdictid.append(indictsql["id"])
+                        arrdictname.append(s)
+                        # print(indictsql["id"])
                     
             
             # print('myList',myList)
-            sql = str(dictarr).replace(' ','')
-            rule =  "SELECT m.* FROM map_rule_based m WHERE m.status = 1 and m.dict_id = "
-            rule+= "'"+sql +"'"
-            # print(rule)
-            rule_based = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+rule)
-            rule_based = json.loads(rule_based.text)
-            rule_based = np.asarray(rule_based)
-            # print(rule_based)
-            if len(rule_based) > 0:
-                status = int(rule_based[0]["answer"])
+            # sql = str(dictarr).replace(' ','')
+            # rule =  "SELECT m.* FROM map_rule_based m WHERE m.status = 1 and m.dict_id = "
+            # rule+= "'"+sql +"'"
+            # # print(rule)
+            # rule_based = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+rule)
+            # rule_based = json.loads(rule_based.text)
+            # rule_based = np.asarray(rule_based)
+            # # print(rule_based)
+            # if len(rule_based) > 0:
+            #     status = int(rule_based[0]["answer"])
                     
             for mid in array_keyword:
                 sw = sw.replace(mid,'<span style="color:red">'+mid+'</span>')
@@ -1293,16 +1313,16 @@ def checkkeyword():
             # print('status',status)
             arr_data.append({'id':dictarr,
                              'sen':myList,
-                             'sentent':sw,
-                             'status':status})
+                             'sentent':sw})
             stradvertise = str(dictarr).replace(' ','')
+            strarrdictid = str(arrdictid).replace(' ','')
+            strarrdictname = str(arrdictname).replace(' ','')
+            strarrdictname = str(strarrdictname).replace("'",'"')
             # strmyList = str(myList).replace(' ','')
             # print(myList)
             Listsen = []
             for m in myList:
                 Listsen.append({"name":m})
-              
-            # print(Listsen)  
             # strmyList = str(strmyList).replace("'",'"')
             # strmyList = str(strmyList).replace('["','[{"name":"')
             # strmyList = str(strmyList).replace('"]','"}]')
@@ -1314,16 +1334,18 @@ def checkkeyword():
             strmyList = str(strmyList).replace(",'",',"')
             strmyList = str(strmyList).replace("'",'"')
             strmyList = str(strmyList).replace('""','"')
+            
             sw += "')"
             sw= str(sw).replace("'  '","' ")
             # print(sw)
             if len(keywordarr) > 0 and len(rulekey) == 0:
-                ad =  "INSERT INTO advertise (id, product_id, dict_id, sen, sentent) VALUES (NULL,"
+                ad =  "INSERT INTO advertise (id, product_id, dict_id, dict_name, sen, sentent) VALUES (NULL,"
                 ad+= "'"+id +"',"
-                ad+= "'"+stradvertise +"',"
+                ad+= "'"+strarrdictid +"',"
+                ad+= "'"+strarrdictname +"',"
                 ad+= "'"+strmyList +"',"
                 ad+= "'"+sw +""
-                # print(ad)
+                print(ad)
                 addadvertise = requests.get(pathnodejs+'/api/rule_based/getbydict?name='+ad)
                 # print(json.loads(addadvertise.text))
             # print(arr_data)
