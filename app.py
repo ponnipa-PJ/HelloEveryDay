@@ -40,7 +40,7 @@ def hello():
 @cross_origin()
 def findedged():
     # path = id+'.jpg'
-    path = '10.jpg'
+    path = '1.jpg'
     img = cv2.imread(path)
     # print(img.shape) # Print image shape
     
@@ -680,6 +680,7 @@ def matchname():
     setting_front = int(setting[0]["front_space"])
     setting_back = int(setting[0]["back_space"])
         
+    # print('name',name)
     array_desc = tokenlist(name.upper())
     array_name_real = tokenlist(name_real.upper())
     # array_desc = name.upper().split()
@@ -691,9 +692,10 @@ def matchname():
     name_match = []
     for name_word in array_desc:
         if name_word != ' ':
-            if any(word.startswith(name_word) for word in array_name_real):
-                # print(name_word)
-                if len(name_word) >1:
+            if name_word !='ผลิตภัณฑ์' or name_word !='เสริม'  or name_word !='อาหาร':
+                
+                if any(word.startswith(name_word) for word in array_name_real):
+                    # print(name_word)
                     name_match.append(name_word)
     # print('name_match',name_match)
                    
@@ -761,65 +763,7 @@ def matchname():
             # print('forward',forward)
         i=currentindex
         
-    # for id in new_list:
-    #     print(currentindex,' ',id)
-    #     t = id
-    #     if currentindex > id or currentindex != 0:
-    #         i = currentindex+1
-    #         t = 0
-    #         while i < (len(array_desc)):
-    #             print(array_desc[i+1])
-    #             if array_desc[i+1] != ' ':
-    #                 t = i+1
-    #                 break
-    #             i+=1
-    #             print(i)
-    #         print(t,'t')
-
-    #     id = t       
-    #     print(array_desc[t],'t')
-    #     strb = ''
-        
-    #     print('currentindex',currentindex)
-    #     # for b in back:
-    #     #     if b == array_desc[currentindex-1]:
-    #     #         strba = b
-    #     #         strb += strba.replace(array_desc[t],'<span style="color:red">'+array_desc[t]+'</span>')
-    #     #     else:
-    #     #         strb += b
-                
-    #     # print(strb)
-        
-    #     backward = findbackward(array_desc,id,setting_front)
-    #     print(backward)
-    #     print('array_desc',array_desc[backward])
-    #     # print('backward',array_desc[backward:id])
-        
-    #     forward = findforward(array_desc,id,setting_back)
-    #     # print('forward',forward)
-    #     # print('forward',array_desc[id:forward])
-        
-    #     back = array_desc[backward:id]
-        
-    #     forw = array_desc[id:forward]
-    #     # print('back',back)
-        
-    #     backw = ' '.join(back)
-    #     forwo = ' '.join(forw)
-        
-        
-    #     sentent = backw+forwo
-    #     # for mid in array_keyword:
-    #     #     sentent = sentent.replace(mid,'<span style="color:red">'+mid+'</span>')
-        
-    #     arr_data.append(sentent)
-    #     currentindex = forward
-            
-    #     print('len(array_desc)',len(array_desc))
-    #     print('backward',backward)
-    #     print('forward',forward)
-                    # print('arr_list',arr_data)  
-                    
+       
     return arr_data
 
 # @app.route('/checkkeyword')
@@ -1581,22 +1525,23 @@ def scraping():
     driver.get(backend_path+path)
     sleep(1)
 # (1382, 2400, 3)
-    driver.get_screenshot_as_file(id+".jpg")
+    driver.get_screenshot_as_file("img/"+id+".jpg")
     driver.quit()
     # print("end...")
-    path = id+'.jpg'
+    path = "img/"+id+'.jpg'
     img = cv2.imread(path)
     # print(img.shape) # Print image shape
     # cv2.imshow("original", img)
     
-    x, y, w, h = 30, 381, 900, 899
+    # x, y, w, h = 30, 381, 900, 899
+    x, y, w, h = 15, 190, 450, 450
     out = img[y:y+h, x:x+w, :].copy()
 
     # Display cropped image
     # cv2.imshow("cropped", cropped_image)
     
     # Save the cropped image
-    cv2.imwrite("Cropped"+id+".jpg", out)
+    cv2.imwrite("img/Cropped"+id+".jpg", out)
     
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
@@ -1649,7 +1594,7 @@ def scrapingheader():
 def get_base64():
     id = request.args.get('id')
     # print(id)
-    with open("Cropped"+id+".jpg", "rb") as image_file:
+    with open("img/Cropped"+id+".jpg", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
     # print(encoded_string)
     return encoded_string

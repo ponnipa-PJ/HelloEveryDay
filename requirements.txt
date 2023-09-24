@@ -9,5 +9,5 @@ selenium
 pythainlp
 opencv-python
 webdriver-manager
-pytesseract
-tesseract
+# pytesseract
+# tesseract
